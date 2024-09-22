@@ -1,4 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
+
+import type { SetupWorker } from 'msw/browser';
+
 // for information about these interfaces
 declare global {
 	namespace App {
@@ -7,6 +10,10 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
+	}
+
+	interface Window {
+		__msw: SetupWorker;
 	}
 
 	const APP_VERSION: string;

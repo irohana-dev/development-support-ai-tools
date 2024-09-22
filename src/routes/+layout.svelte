@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { dev } from '$app/environment';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 	import '../app.css';
 	import { DarkMode, Navbar, NavBrand, NavHamburger, NavLi, NavUl, Modal } from 'flowbite-svelte';
 
@@ -7,6 +9,16 @@
 	let isOpenedAppInfo = false;
 
 	$: activeUrl = $page.url.pathname;
+
+	let mocking = false;
+	function stopMock() {
+		window.__msw.stop();
+		delete window.__msw;
+		mocking = false;
+	}
+	onMount(() => {
+		if (window.__msw) mocking = true;
+	});
 </script>
 
 <div class="flex h-screen flex-col">
@@ -25,6 +37,9 @@
 			<NavLi nonActiveClass="cursor-pointer" on:click={() => (isOpenedAppInfo = true)}
 				>バージョン情報</NavLi
 			>
+			{#if dev && mocking}
+				<NavLi on:click={stopMock} nonActiveClass="cursor-pointer">Disable MSW</NavLi>
+			{/if}
 			<NavLi>
 				<DarkMode
 					btnClass="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 

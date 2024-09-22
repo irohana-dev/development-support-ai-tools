@@ -12,13 +12,16 @@
 	} from 'flowbite-svelte';
 	import { translateRequirementsToDefinitions, type TranslateResults } from '$lib/gpt';
 
-	let descriptionText = '個人情報を含む企業の機密データを扱うSaaS型のWebサービス。';
+	const USDJPY = 145.0; // 2024年の相場観より
+
+	let descriptionText = '個人情報を含む企業の機密データを扱うSaaS型のWebサービスを開発する。';
 	let requirementsText =
 		'OWASP10に基づきセキュリティを確保してほしい。通信方法やパスワード保管方法など。';
 
 	let results: TranslateResults = {
 		info: null,
-		results: [{ summary: '要件定義のサマリーがここに表示されます', requirementDefinitions: [] }]
+		results: [{ summary: '要件定義のサマリーがここに表示されます', requirementDefinitions: [] }],
+		price: 0
 	};
 	const types: { [k: string]: any } = {
 		functional: '機能',
@@ -31,11 +34,12 @@
 	let error = '';
 
 	async function translate() {
+		if (processing) return;
 		processing = true;
 		results = await translateRequirementsToDefinitions(descriptionText, requirementsText);
 		if (!results) {
 			processing = false;
-			error = 'AI処理に失敗しました。';
+			error = 'AIの推論処理に失敗しました。APIキーなど設定を確認ください。';
 			return;
 		}
 		console.log(results);
@@ -54,10 +58,21 @@
 			<Label for="requirements">要求分析</Label>
 			<Textarea bind:value={requirementsText} id="requirements">
 				<div slot="footer" class="flex items-center justify-between">
-					<Button type="submit" disabled={processing}>要件定義に変換</Button>
+					<div class="flex flex-row items-center gap-4">
+						<Button type="submit" disabled={processing}>要件定義に変換</Button>
+						{#if results.price > 0}
+							<P size="sm" italic
+								>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P
+							>
+						{/if}
+					</div>
+					<P size="sm">※変換には10秒前後かかります</P>
 				</div>
 			</Textarea>
 		</div>
+		{#if error}
+			<Alert>{error}</Alert>
+		{/if}
 	</form>
 	<div class="hidden flex-col gap-6 print:flex">
 		<div class="flex flex-col gap-4">

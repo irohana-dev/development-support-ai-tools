@@ -16,4 +16,6 @@ if (dev) {
 			print.warning();
 		}
 	});
+
+	window.__msw = worker;
 }

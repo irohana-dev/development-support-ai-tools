@@ -25,6 +25,7 @@ export type TranslatedRequestDefinitions = {
 export type TranslateResults = {
 	info: string | null;
 	results: TranslatedRequestDefinitions[];
+	price: number;
 };
 
 const client = new OpenAI({ apiKey: PUBLIC_OPENAI_API_KEY, dangerouslyAllowBrowser: true });
@@ -42,12 +43,16 @@ export async function translateRequirementsToDefinitions(
 			},
 			{ role: 'user', content: request }
 		],
-		tools: [zodFunction({ name: 'query', parameters: QueryTranslateRequestDefinitions })]
+		tools: [zodFunction({ name: 'query', parameters: QueryTranslateRequestDefinitions })],
+		top_p: 0.5
 	});
 	return {
 		info: completion.choices[0].message.content,
 		results: completion.choices[0].message.tool_calls.map(
 			(call) => call.function.parsed_arguments as TranslatedRequestDefinitions
-		)
+		),
+		price:
+			(2.5 * (completion.usage?.prompt_tokens ?? 0)) / 1_000_000 +
+			(10.0 * (completion.usage?.completion_tokens ?? 0)) / 1_000_000
 	};
 }
