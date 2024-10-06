@@ -52,7 +52,7 @@
 	<form on:submit|preventDefault={translate} class="flex flex-col gap-4 print:hidden">
 		<div>
 			<Label for="description">システム説明</Label>
-			<Textarea bind:value={descriptionText} id="description" />
+			<Textarea bind:value={descriptionText} id="description" class="bg-white dark:bg-gray-800" />
 		</div>
 		<div>
 			<Label for="requirements">要求分析</Label>
@@ -96,7 +96,7 @@
 				{#each result.requirementDefinitions as definition}
 					<ListgroupItem class="break-inside-avoid-page gap-2 print:border-gray-300">
 						<dl class="flex flex-row items-center justify-between">
-							<dt class="text-primary-500 w-16 text-sm font-bold">
+							<dt class="w-16 text-sm font-bold text-primary-500">
 								{types[definition.type] ?? ''}
 							</dt>
 							<dd class="flex-1 font-normal">
