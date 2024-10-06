@@ -23,20 +23,17 @@
 
 <div class="flex h-screen flex-col">
 	<Navbar color="indigo" shadow fluid class="z-10">
-		<NavBrand>
+		<NavBrand href="/">
 			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
 				Development Support AI Tools
 			</span>
 		</NavBrand>
 		<NavHamburger />
 		<NavUl {activeUrl}>
-			<NavLi href="/">要件定義AI</NavLi>
-			<!-- <NavLi href="/repair">部分修正</NavLi>
-			<NavLi href="/variation">バリエーション生成</NavLi>
-			<NavLi href="/billing">課金額記録</NavLi> -->
-			<NavLi nonActiveClass="cursor-pointer" on:click={() => (isOpenedAppInfo = true)}
-				>バージョン情報</NavLi
-			>
+			<NavLi href="/req-analysis">要件定義AI</NavLi>
+			<NavLi nonActiveClass="cursor-pointer" on:click={() => (isOpenedAppInfo = true)}>
+				バージョン情報
+			</NavLi>
 			{#if dev && mocking}
 				<NavLi on:click={stopMock} nonActiveClass="cursor-pointer">Disable MSW</NavLi>
 			{/if}
