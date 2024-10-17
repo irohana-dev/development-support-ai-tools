@@ -62,7 +62,7 @@
 	<Heading tag="h2" class="print:text-gray-800">テーブルデータ生成AI</Heading>
 	<Card size="xl" class="gap-4 print:border-gray-300 print:bg-white">
 		<Presets
-			storageKey="TestDataColumnsDefinition"
+			storageKey="TableDataPreset"
 			bind:data={requestData}
 			initPresetData={initialRequestData}
 			initPresetName="デフォルト"
