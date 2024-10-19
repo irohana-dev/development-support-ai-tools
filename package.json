@@ -1,6 +1,6 @@
 {
   "name": "devlopment-support-ai-tools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "dev": "vite dev",
@@ -22,8 +22,8 @@
     "eslint": "^9.11.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^2.44.0",
-    "flowbite": "^2.5.1",
-    "flowbite-svelte": "^0.46.17",
+    "flowbite": "^2.5.2",
+    "flowbite-svelte": "^0.47.1",
     "globals": "^15.9.0",
     "msw": "^2.4.9",
     "prettier": "^3.3.3",
@@ -39,6 +39,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@streamparser/json": "^0.0.21",
     "openai": "^4.63.0",
     "zod": "^3.23.8"
   },

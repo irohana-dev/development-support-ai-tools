@@ -13,7 +13,7 @@ declare global {
 	}
 
 	interface Window {
-		__msw: SetupWorker;
+		__msw?: SetupWorker | undefined;
 	}
 
 	const APP_VERSION: string;
