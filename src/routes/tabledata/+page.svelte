@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Textarea, Button, Heading, Alert, Label, Card, P } from 'flowbite-svelte';
+	import { Checkbox, Textarea, Button, Heading, Alert, Label, Card, P, Spinner } from 'flowbite-svelte';
 
 	import Presets from '$lib/components/Presets.svelte';
 	import { generateTableData, type TableDataResult, type TableDataRow } from '$lib/gpt';
@@ -45,25 +45,38 @@
 	};
 	let processedRequestData: RequestData = initialRequestData;
 
-	let results: TableDataResult = {
+	let result: TableDataResult = {
 		table: { summary: 'ここに生成結果の要約とテーブルデータが出力されます。サマリーは常に日本語です。', data: [] },
 		price: 0
 	};
 
+	let streaming = false;
 	let processing = false;
 	let error = '';
 
 	async function generate() {
 		if (processing) return;
 		processing = true;
-		results = await generateTableData(requestData.defs, requestData.prompt);
-		if (!results) {
+		try {
+			result = { table: { summary: '', data: [] }, price: 0 };
+			const newResult = await generateTableData(
+				requestData.defs,
+				requestData.prompt,
+				// ストリーミングはMSWのmockなし
+				streaming ? (table) => (result.table = table) : undefined
+			);
+			if (!newResult) {
+				processing = false;
+				error = 'AIの推論処理に失敗しました。APIキーなど設定を確認ください。';
+				return;
+			}
+			processedRequestData = JSON.parse(JSON.stringify(requestData));
+			result = newResult;
+		} catch (e: unknown) {
+			error = (e as Error).toString();
+		} finally {
 			processing = false;
-			error = 'AIの推論処理に失敗しました。APIキーなど設定を確認ください。';
-			return;
 		}
-		processedRequestData = JSON.parse(JSON.stringify(requestData));
-		processing = false;
 	}
 
 	/**
@@ -117,13 +130,14 @@
 				<div slot="footer" class="flex items-center justify-between">
 					<div class="flex flex-row items-center gap-4">
 						<Button type="submit" disabled={processing}>テーブルデータを生成</Button>
-						{#if results.price > 0}
-							<P size="sm" italic>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P>
+						{#if result.price > 0}
+							<P size="sm" italic>Charged ${result.price.toFixed(3)} ({(result.price * USDJPY).toFixed(1)}円)</P>
 						{/if}
 					</div>
 					<P size="sm">※項目数により、多くの場合は1件あたり1秒以上かかります。</P>
 				</div>
 			</Textarea>
+			<Checkbox bind:checked={streaming}>生成結果をストリーミングモードで表示する（実験的）</Checkbox>
 			{#if error}
 				<Alert>{error}</Alert>
 			{/if}
@@ -137,30 +151,30 @@
 	</Card>
 
 	<Heading tag="h3" class="break-after-avoid-page print:text-gray-800">出力結果</Heading>
-	{#if processing}
-		<Alert type="info" class="py-12">
-			データを生成中です。しばらくお待ちください..<br />
-			※AI推論による生成のため、データ量が多いと数十秒かかる場合もあります。
-		</Alert>
-	{:else}
-		<Card size="xl" class="break-inside-avoid-page gap-4 print:border-gray-300 print:bg-white">
-			<P class="print:text-black">
-				{#each (results.table?.summary ?? '').split('\n') as line}
-					{line}<br />
-				{/each}
-			</P>
-			<DataViewer
-				definitions={processedRequestData.defs}
-				properties={processedRequestData.properties}
-				items={results.table?.data || []}
-			/>
+	<Card size="xl" class="break-inside-avoid-page gap-4 print:border-gray-300 print:bg-white">
+		<P class="print:text-black">
+			{#each (result.table?.summary ?? '').split('\n') as line}
+				{line}<br />
+			{/each}
+		</P>
+		<DataViewer
+			definitions={processedRequestData.defs}
+			properties={processedRequestData.properties}
+			items={result.table?.data || []}
+		/>
+		{#if processing}
+			<Alert color="yellow">
+				<Spinner />
+				データを生成中です。しばらくお待ちください..
+			</Alert>
+		{:else}
 			<div class="flex flex-row justify-end">
 				<Button
 					size="sm"
-					disabled={!results.table || results.table.data.length === 0}
-					on:click={() => downloadCSV(results.table!.data)}>CSVエクスポート</Button
+					disabled={!result.table || result.table.data.length === 0}
+					on:click={() => downloadCSV(result.table!.data)}>CSVエクスポート</Button
 				>
 			</div>
-		</Card>
-	{/if}
+		{/if}
+	</Card>
 </div>

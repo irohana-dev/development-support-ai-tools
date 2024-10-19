@@ -5,6 +5,7 @@
 		Checkbox,
 		Label,
 		Input,
+		P,
 		Select,
 		type SelectOptionType,
 		Table,
@@ -65,18 +66,18 @@
 
 <Table divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg">
 	<TableHead>
-		<TableHeadCell>Item Name</TableHeadCell>
-		<TableHeadCell>Value Type</TableHeadCell>
-		<TableHeadCell>Split</TableHeadCell>
-		<TableHeadCell>Req</TableHeadCell>
-		<TableHeadCell>Description or Select items</TableHeadCell>
-		<TableHeadCell>Actions</TableHeadCell>
+		<TableHeadCell class="whitespace-nowrap">項目名</TableHeadCell>
+		<TableHeadCell class="whitespace-nowrap">データ型</TableHeadCell>
+		<TableHeadCell class="whitespace-nowrap">分割</TableHeadCell>
+		<TableHeadCell class="whitespace-nowrap">必須</TableHeadCell>
+		<TableHeadCell class="whitespace-nowrap">追加説明</TableHeadCell>
+		<TableHeadCell class="whitespace-nowrap">操作</TableHeadCell>
 	</TableHead>
 	<TableBody>
 		{#each data as row, i}
 			<TableBodyRow>
 				<TableBodyCell>
-					<Input type="text" pattern="^[0-9A-Za-z_]+$" bind:value={row.key} />
+					<Input class="w-40" type="text" pattern="^[0-9A-Za-z_]+$" bind:value={row.key} />
 				</TableBodyCell>
 				<TableBodyCell>
 					<Select items={valueTypes} bind:value={row.type} placeholder="Value type" on:change={() => changeType(i)} />
@@ -90,18 +91,21 @@
 					<Checkbox bind:checked={row.required} />
 				</TableBodyCell>
 				<TableBodyCell>
+					{#if row.type === 'enum'}
+						<P size="sm" class="text-orange-600">半角カンマ区切りで選択肢を記入ください</P>
+					{/if}
 					<Input
 						type="text"
 						bind:value={row.description}
 						required={row.type === 'enum'}
-						class={row.type === 'enum' && !row.description ? 'border-red-600 bg-red-200' : ''}
+						class={row.type === 'enum' && !row.description ? 'w-52 border-red-600 bg-red-200' : 'w-60'}
 					/>
 				</TableBodyCell>
 				<TableBodyCell>
 					{#if i > 0}
-						<A on:click={() => removeKey(i)}>Delete</A>
+						<A on:click={() => removeKey(i)}>削除</A>
 					{:else}
-						<div class="text-gray-300">Delete</div>
+						<div class="text-gray-300">削除</div>
 					{/if}
 				</TableBodyCell>
 			</TableBodyRow>

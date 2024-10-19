@@ -20,7 +20,7 @@
 		{#each items as row}
 			<TableBodyRow>
 				{#each definitions as def}
-					{#each convertColumnValue(def, row[def.key], properties) as value}
+					{#each row && convertColumnValue(def, row[def.key], properties) as value}
 						<TableBodyCell>
 							{#if def.type === 'enum'}
 								{def.description?.split(/\s*,\s*/)[0]}

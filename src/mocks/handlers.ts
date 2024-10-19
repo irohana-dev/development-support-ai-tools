@@ -58,6 +58,7 @@ const GPT_RESULT_TABLE_DATA = {
 export const handlers = [
 	http.post('https://api.openai.com/v1/chat/completions', async ({ request }) => {
 		const requestData = (await request.json()) as ChatCompletionCreateParams;
+		if (requestData.stream) return HttpResponse.error();
 		await delay(300);
 		const requestContent = (requestData.messages[0].content as string) ?? '';
 		let response = {

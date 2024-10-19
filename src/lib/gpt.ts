@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import z from 'zod';
+import { JSONParser } from '@streamparser/json';
 
 import { PUBLIC_OPENAI_API_KEY } from '$env/static/public';
 
@@ -64,32 +65,73 @@ export async function translateRequirementsToDefinitions(
 
 // テーブルデータ生成AI
 export type TableDataRow = { [key: string]: ColumnValue };
+export type TableData = { summary: string; data: TableDataRow[] };
 export type TableDataResult = {
-	table: { summary: string; data: TableDataRow[] } | null;
+	table: TableData | null;
 	price: number;
 };
 
-export async function generateTableData(definitions: ColumnDefinition[], request: string): Promise<TableDataResult> {
+export async function generateTableData(
+	definitions: ColumnDefinition[],
+	request: string,
+	onStream?: (table: TableData) => void
+): Promise<TableDataResult> {
 	const zQueryTableData = z.object({
 		summary: z.string({ description: 'Summarize data info in Japanese' }),
 		data: z.array(convert(definitions))
 	});
-	const completion = await client.beta.chat.completions.parse({
-		model,
-		messages: [
-			{
-				role: 'system',
-				content: `Please generate mock data based on requirements.`
-			},
-			{ role: 'user', content: request }
-		],
-		response_format: zodResponseFormat(zQueryTableData, 'table'),
-		top_p
-	});
-	return {
-		table: completion.choices[0].message.parsed as { summary: string; data: TableDataRow[] } | null,
-		price:
-			(costFor1MReadToken * (completion.usage?.prompt_tokens ?? 0)) / 1_000_000 +
-			(costFor1MCompToken * (completion.usage?.completion_tokens ?? 0)) / 1_000_000
-	};
+	if (onStream) {
+		const stream = await client.beta.chat.completions.stream({
+			model,
+			messages: [
+				{
+					role: 'system',
+					content: `Please generate mock data based on requirements.`
+				},
+				{ role: 'user', content: request }
+			],
+			response_format: zodResponseFormat(zQueryTableData, 'table'),
+			top_p,
+			stream: true
+		});
+		const jsonParser = new JSONParser({
+			paths: ['$.summary', '$.data.*'],
+			emitPartialTokens: true,
+			emitPartialValues: true
+		});
+		let partialData: TableData = { summary: '', data: [] };
+		jsonParser.onValue = (p) => {
+			const { key, value, parent } = p;
+			if (key === 'summary') {
+				partialData = parent as TableData;
+				partialData.summary = value as string;
+			}
+			onStream(partialData);
+		};
+		for await (const chunk of stream) {
+			jsonParser.write(chunk.choices[0]?.delta.content ?? '');
+		}
+		const completion = await stream.finalChatCompletion();
+		// NOTE: Streamモードではトークン数が返ってこない
+		return { table: completion.choices[0].message.parsed, price: 0 };
+	} else {
+		const completion = await client.beta.chat.completions.parse({
+			model,
+			messages: [
+				{
+					role: 'system',
+					content: `Please generate mock data based on requirements.`
+				},
+				{ role: 'user', content: request }
+			],
+			response_format: zodResponseFormat(zQueryTableData, 'table'),
+			top_p
+		});
+		return {
+			table: completion.choices[0].message.parsed,
+			price:
+				(costFor1MReadToken * (completion.usage?.prompt_tokens ?? 0)) / 1_000_000 +
+				(costFor1MCompToken * (completion.usage?.completion_tokens ?? 0)) / 1_000_000
+		};
+	}
 }

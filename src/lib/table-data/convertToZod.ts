@@ -99,7 +99,7 @@ export function convertColumnKey(type: ValueTypes, srcKey: string, split: boolea
 
 export function convertColumnValue(
 	definition: ColumnDefinition,
-	srcValue: ColumnValue,
+	srcValue: ColumnValue | undefined,
 	properties: Config,
 	csv: boolean = false
 ): string[] {
