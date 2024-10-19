@@ -83,7 +83,7 @@ export function convert(colDefs: ColumnDefinition[]) {
 const dateOrderKeys = { DMY: ['day', 'month', 'year'], YMD: ['year', 'month', 'day'], MDY: ['month', 'day', 'year'] };
 
 // original: https://stackoverflow.com/a/2901298
-function numberWithCommas(x) {
+function numberWithCommas(x: number) {
 	return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',');
 }
 
@@ -98,23 +98,31 @@ export function convertColumnKey(type: ValueTypes, srcKey: string, split: boolea
 }
 
 export function convertColumnValue(
-	type: ValueTypes,
+	definition: ColumnDefinition,
 	srcValue: ColumnValue,
-	split: boolean = false,
 	properties: Config,
 	csv: boolean = false
-) {
+): string[] {
+	const { type, split } = definition;
 	if (srcValue == null) return [''];
-	if (type === 'text' || type === 'enum') return [srcValue];
-	if (type === 'number' || type === 'integer') return [csv ? srcValue.toString() : numberWithCommas(srcValue)];
+	if (type === 'text' || type === 'enum') return [srcValue as string];
+	if (type === 'number' || type === 'integer')
+		return [csv ? srcValue.toString() : numberWithCommas(srcValue as number)];
 	if (type === 'boolean') return [csv ? (srcValue ? 'TRUE' : 'FALSE') : srcValue ? 'Yes' : 'No'];
 	const obj = srcValue as { [k: string]: string | number | boolean | null };
 	if (split) {
-		if (type === 'fullname') return [obj.first, obj.middle ?? '', obj.last ?? ''];
-		if (type === 'date') return [obj.year, obj.month, obj.day];
-		if (type === 'time') return [obj.hour, obj.minute, obj.second];
-		if (type === 'address') return [obj.country ?? '', obj.zipCode ?? '', obj.address];
-		if (type === 'address_jp') return [obj.zipCode, obj.prefecture, obj.municipality, obj.others];
+		if (type === 'fullname') return [obj.first as string, (obj.middle ?? '') as string, (obj.last ?? '') as string];
+		if (type === 'date') return [obj.year!.toString(), obj.month!.toString(), obj.day!.toString()];
+		if (type === 'time') return [obj.hour!.toString(), obj.minute!.toString(), obj.second!.toString()];
+		if (type === 'address')
+			return [(obj.country ?? '').toString(), (obj.zipCode ?? '').toString(), obj.address!.toString()];
+		if (type === 'address_jp')
+			return [
+				obj.zipCode!.toString(),
+				obj.prefecture!.toString(),
+				obj.municipality!.toString(),
+				obj.others!.toString()
+			];
 	} else {
 		const { dateOrder, dateSeparator: d, timeSeparator: t } = properties;
 		const lf = csv ? ' ' : '\n';
@@ -124,5 +132,5 @@ export function convertColumnValue(
 		if (type === 'address') return [`${obj.country}${lf}${obj.address} ${obj.zipCode}`];
 		if (type === 'address_jp') return [`${obj.zipCode}${lf}${obj.prefecture}${obj.municipality}${obj.others}`];
 	}
-	return [srcValue];
+	return [`${srcValue}`];
 }

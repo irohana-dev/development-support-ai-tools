@@ -2,26 +2,40 @@
 	import { Textarea, Button, Heading, Alert, Label, Card, P } from 'flowbite-svelte';
 
 	import Presets from '$lib/components/Presets.svelte';
-	import { generateTableData, type TableDataResult } from '$lib/gpt';
+	import { generateTableData, type TableDataResult, type TableDataRow } from '$lib/gpt';
 	import type { ColumnDefinition, Config } from '$lib/table-data/types';
 	import DataViewer from '$lib/table-data/DataViewer.svelte';
 	import DefinitionTable from '$lib/table-data/DefinitionTable.svelte';
 	import Preview from '$lib/table-data/Preview.svelte';
+	import { convertColumnKey, convertColumnValue } from '$lib/table-data/convertToZod';
 
 	const USDJPY = 145.0; // 2024年の相場観より
 
 	type RequestData = { defs: ColumnDefinition[]; properties: Config; prompt: string };
 	const initialRequestData: RequestData = {
 		defs: [
-			{ key: 'name', type: 'fullname', description: 'In alphabet', required: true, split: true },
-			{ key: 'address', type: 'address', description: 'Country name in Japanese', required: true, split: true },
+			{ key: 'name', type: 'fullname', description: 'Latin-style names in katakana', required: true, split: true },
+			{
+				key: 'address',
+				type: 'address',
+				description: 'Original nationality and address that does not exist on earth.',
+				required: true,
+				split: true
+			},
 			{ key: 'gender', type: 'gender', description: '', required: true },
-			{ key: 'birthday', type: 'date', description: '', required: true },
-			{ key: 'loginTime', type: 'time', description: 'If already logged-in, or null', required: false },
+			{
+				key: 'birthday',
+				type: 'date',
+				description:
+					'The world time in this world is 250 years, a year rotates in 6 months, and a month rotates in 20 days.',
+				required: true,
+				split: false
+			},
+			{ key: 'loginTime', type: 'time', description: 'If already logged-in, or null', required: false, split: false },
 			{ key: 'countOfLogin', type: 'integer', description: 'If already logged-in, or null', required: false }
 		],
 		properties: { dateOrder: 'YMD', dateSeparator: '-', timeSeparator: ':' },
-		prompt: 'グローバルなWebサイトにおけるDBのユーザーテーブルです。5名分のモックデータを作成してください。'
+		prompt: 'DB user table in a virtual world of my making game. Create mock data for 5 users.'
 	};
 
 	let requestData: RequestData = {
@@ -29,22 +43,17 @@
 		properties: { dateOrder: 'YMD', dateSeparator: '-', timeSeparator: ':' },
 		prompt: ''
 	};
-	let processedRequestData: RequestData = {
-		defs: [],
-		properties: { dateOrder: 'YMD', dateSeparator: '', timeSeparator: '' },
-		prompt: ''
-	};
+	let processedRequestData: RequestData = initialRequestData;
 
 	let results: TableDataResult = {
-		info: null,
-		results: [{ summary: 'ここに生成結果の要約とテーブルデータが出力されます。', data: [] }],
+		table: { summary: 'ここに生成結果の要約とテーブルデータが出力されます。サマリーは常に日本語です。', data: [] },
 		price: 0
 	};
 
 	let processing = false;
 	let error = '';
 
-	async function translate() {
+	async function generate() {
 		if (processing) return;
 		processing = true;
 		results = await generateTableData(requestData.defs, requestData.prompt);
@@ -55,6 +64,35 @@
 		}
 		processedRequestData = JSON.parse(JSON.stringify(requestData));
 		processing = false;
+	}
+
+	/**
+	 * Excel等で開くことが可能なUTF-8 (BOM付き)でCSVダウンロードする
+	 * @param data 対象のテーブルデータ
+	 */
+	function downloadCSV(data: TableDataRow[]) {
+		if (!data || data.length <= 0 || processing) return;
+		function convertValue(value: string) {
+			if (value === 'TRUE' || value === 'FALSE') return value;
+			return `"${value.replaceAll('"', '""')}"`;
+		}
+		const csv = [
+			processedRequestData.defs
+				.flatMap((d) => convertColumnKey(d.type, d.key, d.split))
+				.map(convertValue)
+				.join(','),
+			...data.map((row) =>
+				processedRequestData.defs
+					.flatMap((d) => convertColumnValue(d, row[d.key], processedRequestData.properties, true))
+					.map(convertValue)
+					.join(',')
+			)
+		].join('\n');
+		const a = document.createElement('a');
+		const withBom = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csv], { type: 'text/css' });
+		a.href = URL.createObjectURL(withBom);
+		a.download = `tabledata_${data.length}.csv`;
+		a.click();
 	}
 </script>
 
@@ -67,7 +105,7 @@
 			initPresetData={initialRequestData}
 			initPresetName="デフォルト"
 		/>
-		<form on:submit|preventDefault={translate} class="flex flex-col gap-4 print:hidden">
+		<form on:submit|preventDefault={generate} class="flex flex-col gap-4 print:hidden">
 			<Label>テーブルデータの項目定義</Label>
 			<DefinitionTable bind:data={requestData.defs} bind:properties={requestData.properties} />
 
@@ -83,7 +121,7 @@
 							<P size="sm" italic>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P>
 						{/if}
 					</div>
-					<P size="sm">※生成には10秒前後かかります。生成件数が多いほど時間がかかります。</P>
+					<P size="sm">※項目数により、多くの場合は1件あたり1秒以上かかります。</P>
 				</div>
 			</Textarea>
 			{#if error}
@@ -105,29 +143,24 @@
 			※AI推論による生成のため、データ量が多いと数十秒かかる場合もあります。
 		</Alert>
 	{:else}
-		{#if results.info}
-			<Alert type="info">
-				{#each results.info.split('\n') as line}
+		<Card size="xl" class="break-inside-avoid-page gap-4 print:border-gray-300 print:bg-white">
+			<P class="print:text-black">
+				{#each (results.table?.summary ?? '').split('\n') as line}
 					{line}<br />
 				{/each}
-			</Alert>
-		{/if}
-		{#each results.results as result}
-			<Card size="xl" class="break-inside-avoid-page gap-4 print:border-gray-300 print:bg-white">
-				<P class="print:text-black">
-					{#each result.summary.split('\n') as line}
-						{line}<br />
-					{/each}
-				</P>
-				<DataViewer
-					definitions={processedRequestData.defs}
-					properties={processedRequestData.properties}
-					items={result.data}
-				/>
-				<div class="flex flex-row justify-end">
-					<Button size="sm" disabled={result.data.length === 0}>CSVエクスポート (WIP)</Button>
-				</div>
-			</Card>
-		{/each}
+			</P>
+			<DataViewer
+				definitions={processedRequestData.defs}
+				properties={processedRequestData.properties}
+				items={results.table?.data || []}
+			/>
+			<div class="flex flex-row justify-end">
+				<Button
+					size="sm"
+					disabled={!results.table || results.table.data.length === 0}
+					on:click={() => downloadCSV(results.table!.data)}>CSVエクスポート</Button
+				>
+			</div>
+		</Card>
 	{/if}
 </div>

@@ -7,70 +7,45 @@ const GPT_RESULT_REQUEST_ANALYSIS = {
 			index: 0,
 			message: {
 				role: 'assistant',
-				content: null,
-				tool_calls: [
-					{
-						id: 'call_3LtP57eCOXKWBBMKM6akRilx',
-						type: 'function',
-						function: {
-							name: 'query',
-							arguments:
-								'{"summary": "OWASP Top 10を考慮したセキュリティ要件定義", "requirementDefinitions": [{"type": "non-functional", "ja": "通信はTLS 1.2以上を使用して暗号化する。", "en": "Use TLS 1.2 or above for encrypted communications."}, {"type": "non-functional", "ja": "パスワードは強力なアルゴリズムでハッシュ化する。具体的には、bcrypt、scrypt、またはArgon2を使用する。", "en": "Hash passwords using a strong algorithm such as bcrypt, scrypt, or Argon2."}, {"type": "non-functional", "ja": "定期的にセキュリティアップデートを適用し、既知の脆弱性からシステムを保護する。", "en": "Regularly apply security updates to protect against known vulnerabilities."}, {"type": "non-functional", "ja": "インプットバリデーションを強化し、SQLインジェクションやXSS攻撃に対する対策を実施する。", "en": "Enhance input validation and implement measures against SQL injection and XSS attacks."}, {"type": "non-functional", "ja": "アクセスコントロールを強化し、最小権限の原則を適用する。", "en": "Strengthen access controls and apply the principle of least privilege."}, {"type": "non-functional", "ja": "ログイン試行制限を設けてブルートフォース攻撃を防ぐ。", "en": "Implement login attempt limits to prevent brute force attacks."}]}'
-						}
-					},
-					{
-						id: 'call_r7asScAvmSURyxHvNXrMHnxJ',
-						type: 'function',
-						function: {
-							name: 'query',
-							arguments:
-								'{"summary": "機密データを含むSaaS型Webサービスにおけるセキュリティ要件の例", "requirementDefinitions": [{"type": "non-functional", "ja": "すべてのAPIエンドポイントで認証と認可を実施する。", "en": "Implement authentication and authorization on all API endpoints."}, {"type": "non-functional", "ja": "セキュリティ監査ログを定期的に確認し、不審な活動を検出する。", "en": "Regularly review security audit logs to detect suspicious activities."}, {"type": "functional", "ja": "ユーザーには二要素認証のオプションを提供する。", "en": "Provide users with an option for two-factor authentication."}, {"type": "functional", "ja": "セッション管理を強化し、長時間のアクティビティがない場合は自動的にログアウトする。", "en": "Enhance session management to automatically log users out after prolonged inactivity."}]}'
-						}
-					}
-				],
+				content:
+					'{"summary":"このシステムは、OWASP Top 10に基づいてセキュリティを確保するため、以下の要件を定義します。","requirementDefinitions":[{"category":"セキュリティ要件","items":[{"type":"functional","ja":"通信はすべてHTTPSを使用して暗号化する。","en":"All communications must be encrypted using HTTPS."},{"type":"functional","ja":"パスワードはハッシュ化してデータベースに保存する。","en":"Passwords must be hashed before storing in the database."},{"type":"functional","ja":"SQLインジェクションを防ぐために、すべてのデータベースクエリに対してプリペアドステートメントを使用する。","en":"Use prepared statements for all database queries to prevent SQL injection."},{"type":"functional","ja":"クロスサイトスクリプティング（XSS）を防ぐために、ユーザー入力を適切にエスケープする。","en":"Properly escape user inputs to prevent Cross-Site Scripting (XSS)."},{"type":"functional","ja":"セッション管理を強化し、セッションIDを定期的に更新する。","en":"Enhance session management by regularly updating session IDs."},{"type":"functional","ja":"不正なアクセスを防ぐために、強力な認証と認可のメカニズムを実装する。","en":"Implement strong authentication and authorization mechanisms to prevent unauthorized access."},{"type":"functional","ja":"CSRFトークンを使用してクロスサイトリクエストフォージェリ（CSRF）を防ぐ。","en":"Use CSRF tokens to prevent Cross-Site Request Forgery (CSRF)."},{"type":"functional","ja":"データ漏洩を防ぐために、データベース暗号化を実施する。","en":"Implement database encryption to prevent data leakage."},{"type":"functional","ja":"エラーメッセージに機密情報を含めない。","en":"Do not include sensitive information in error messages."},{"type":"functional","ja":"セキュリティログを監視し、不審な活動を検出する。","en":"Monitor security logs to detect suspicious activities."}]},{"category":"非機能要件","items":[{"type":"non-functional","ja":"システムは毎秒1000リクエストを処理できるスケーラビリティを持つ。","en":"The system must have scalability to handle 1000 requests per second."},{"type":"non-functional","ja":"99.9%の可用性を保証する。","en":"Ensure 99.9% availability."},{"type":"non-functional","ja":"データのバックアップは毎日実施される。","en":"Data backups must be performed daily."},{"type":"non-functional","ja":"ユーザーの認証は2要素認証をサポートする。","en":"User authentication must support two-factor authentication."}]}]}',
 				refusal: null
 			},
 			logprobs: null,
-			finish_reason: 'tool_calls'
+			finish_reason: 'stop'
 		}
 	],
 	usage: {
-		prompt_tokens: 167,
-		completion_tokens: 575,
-		total_tokens: 742,
+		prompt_tokens: 227,
+		completion_tokens: 662,
+		total_tokens: 889,
+		prompt_tokens_details: {
+			cached_tokens: 0
+		},
 		completion_tokens_details: {
 			reasoning_tokens: 0
 		}
 	}
 };
-const GPT_RESULT_TEST_DATA = {
+
+const GPT_RESULT_TABLE_DATA = {
 	choices: [
 		{
 			index: 0,
 			message: {
 				role: 'assistant',
-				content: null,
-				tool_calls: [
-					{
-						id: 'call_o05UFBtCdFldktH1utn1V7zi',
-						type: 'function',
-						function: {
-							name: 'query',
-							arguments:
-								'{"summary":"グローバルなWebサイトのユーザーテーブルのモックデータ。5名分。","data":[{"name":{"first":"John","middle":null,"last":"Doe"},"address":{"country":"アメリカ合衆国","zipCode":"10001","address":"123 Main St, New York, NY"},"gender":"male","birthday":{"year":1990,"month":5,"day":15},"loginTime":{"hour":14,"minute":30,"second":45},"countOfLogin":150},{"name":{"first":"Anna","middle":"Maria","last":"Smith"},"address":{"country":"イギリス","zipCode":"SW1A 1AA","address":"10 Downing St, London"},"gender":"female","birthday":{"year":1985,"month":7,"day":22},"loginTime":null,"countOfLogin":null},{"name":{"first":"Yuki","middle":null,"last":"Tanaka"},"address":{"country":"日本","zipCode":"150-0001","address":"東京都渋谷区神宮前1-1-1"},"gender":"female","birthday":{"year":1992,"month":3,"day":10},"loginTime":{"hour":9,"minute":15,"second":30},"countOfLogin":85},{"name":{"first":"Carlos","middle":null,"last":"Gomez"},"address":{"country":"スペイン","zipCode":"28013","address":"Calle de Alcalá, Madrid"},"gender":"male","birthday":{"year":1988,"month":11,"day":5},"loginTime":{"hour":20,"minute":45,"second":10},"countOfLogin":200},{"name":{"first":"Liu","middle":null,"last":"Wei"},"address":{"country":"中国","zipCode":"100000","address":"北京市朝阳区建国路1号"},"gender":"male","birthday":{"year":1995,"month":12,"day":25},"loginTime":null,"countOfLogin":null}]}'
-						}
-					}
-				],
+				content:
+					'{"summary":"以下は、架空の世界における5人のユーザーのデータです。","data":[{"name":{"first":"アレックス","middle":null,"last":"スミス"},"address":{"country":"ファンタジア","zipCode":"123-456","address":"サンセット通り5番地"},"gender":"male","birthday":{"year":100,"month":3,"day":15},"loginTime":{"hour":14,"minute":30,"second":45},"countOfLogin":120},{"name":{"first":"エミリー","middle":"ジェーン","last":"ジョンソン"},"address":{"country":"エルドラド","zipCode":"789-012","address":"グリーンフィールド通り10番地"},"gender":"female","birthday":{"year":200,"month":5,"day":18},"loginTime":null,"countOfLogin":null},{"name":{"first":"マイケル","middle":null,"last":"ウィリアムズ"},"address":{"country":"ネバーランド","zipCode":"345-678","address":"オーシャンビュー通り3番地"},"gender":"male","birthday":{"year":150,"month":2,"day":10},"loginTime":{"hour":9,"minute":15,"second":30},"countOfLogin":85},{"name":{"first":"ソフィア","middle":"マリー","last":"ブラウン"},"address":{"country":"アトランティス","zipCode":"901-234","address":"ムーンライト通り7番地"},"gender":"female","birthday":{"year":180,"month":1,"day":5},"loginTime":{"hour":20,"minute":45,"second":10},"countOfLogin":150},{"name":{"first":"ジェームズ","middle":null,"last":"ジョーンズ"},"address":{"country":"シャングリラ","zipCode":"567-890","address":"スターフォール通り2番地"},"gender":"male","birthday":{"year":130,"month":4,"day":12},"loginTime":null,"countOfLogin":null}]}',
 				refusal: null
 			},
 			logprobs: null,
-			finish_reason: 'tool_calls'
+			finish_reason: 'stop'
 		}
 	],
 	usage: {
-		prompt_tokens: 211,
-		completion_tokens: 436,
-		total_tokens: 647,
+		prompt_tokens: 347,
+		completion_tokens: 449,
+		total_tokens: 796,
 		prompt_tokens_details: {
 			cached_tokens: 0
 		},
@@ -97,7 +72,7 @@ export const handlers = [
 		if (requestContent.includes('要件定義')) {
 			response = { ...response, ...GPT_RESULT_REQUEST_ANALYSIS };
 		} else if (requestContent.includes('mock data')) {
-			response = { ...response, ...GPT_RESULT_TEST_DATA };
+			response = { ...response, ...GPT_RESULT_TABLE_DATA };
 		} else throw new Error('Unknown GPT call at MSW handler');
 		return HttpResponse.json(response);
 	})

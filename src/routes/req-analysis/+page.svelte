@@ -1,26 +1,14 @@
 <script lang="ts">
-	import {
-		Textarea,
-		Button,
-		Listgroup,
-		ListgroupItem,
-		Heading,
-		Alert,
-		Label,
-		Card,
-		P
-	} from 'flowbite-svelte';
+	import { Textarea, Button, Listgroup, ListgroupItem, Heading, Alert, Label, Card, P } from 'flowbite-svelte';
 	import { translateRequirementsToDefinitions, type TranslateResults } from '$lib/gpt';
 
 	const USDJPY = 145.0; // 2024年の相場観より
 
 	let descriptionText = '個人情報を含む企業の機密データを扱うSaaS型のWebサービスを開発する。';
-	let requirementsText =
-		'OWASP10に基づきセキュリティを確保してほしい。通信方法やパスワード保管方法など。';
+	let requirementsText = 'OWASP10に基づきセキュリティを確保してほしい。通信方法やパスワード保管方法など。';
 
 	let results: TranslateResults = {
-		info: null,
-		results: [{ summary: '要件定義のサマリーがここに表示されます', requirementDefinitions: [] }],
+		definitions: { summary: '要件定義のサマリーがここに表示されます', requirementDefinitions: [] },
 		price: 0
 	};
 	const types: { [k: string]: any } = {
@@ -42,7 +30,6 @@
 			error = 'AIの推論処理に失敗しました。APIキーなど設定を確認ください。';
 			return;
 		}
-		console.log(results);
 		processing = false;
 	}
 </script>
@@ -61,9 +48,7 @@
 					<div class="flex flex-row items-center gap-4">
 						<Button type="submit" disabled={processing}>要件定義に変換</Button>
 						{#if results.price > 0}
-							<P size="sm" italic
-								>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P
-							>
+							<P size="sm" italic>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P>
 						{/if}
 					</div>
 					<P size="sm">※変換には10秒前後かかります</P>
@@ -86,33 +71,33 @@
 	</div>
 
 	<Heading tag="h3" class="break-after-avoid-page print:text-gray-800">出力結果</Heading>
-	{#if results.info}
-		<Alert type="info">{results.info}</Alert>
+	{#if results.definitions}
+		<Alert color="indigo">{results.definitions?.summary}</Alert>
+		{#each results.definitions?.requirementDefinitions as result}
+			<Card size="xl" class="break-inside-avoid-page gap-4 print:border-gray-300 print:bg-white">
+				<Heading tag="h5" class="print:text-black">{result.category}</Heading>
+				<Listgroup class="text-base print:border-gray-300 print:bg-white">
+					{#each result.items as item}
+						<ListgroupItem class="break-inside-avoid-page gap-2 print:border-gray-300">
+							<dl class="flex flex-row items-center justify-between">
+								<dt class="w-16 text-sm font-bold text-primary-500">
+									{types[item.type] ?? ''}
+								</dt>
+								<dd class="flex-1 font-normal">
+									<div class="text-neutral-950 dark:text-neutral-100 print:text-black">
+										{item.ja}
+									</div>
+									<div class="text-sm text-neutral-600 dark:text-neutral-400 print:text-neutral-700">
+										{item.en}
+									</div>
+								</dd>
+							</dl>
+						</ListgroupItem>
+					{:else}
+						<ListgroupItem>要件定義に変換を実行してください。</ListgroupItem>
+					{/each}
+				</Listgroup>
+			</Card>
+		{/each}
 	{/if}
-	{#each results.results as result}
-		<Card size="xl" class="break-inside-avoid-page gap-4 print:border-gray-300 print:bg-white">
-			<Heading tag="h5" class="print:text-black">{result.summary}</Heading>
-			<Listgroup class="text-base print:border-gray-300 print:bg-white">
-				{#each result.requirementDefinitions as definition}
-					<ListgroupItem class="break-inside-avoid-page gap-2 print:border-gray-300">
-						<dl class="flex flex-row items-center justify-between">
-							<dt class="w-16 text-sm font-bold text-primary-500">
-								{types[definition.type] ?? ''}
-							</dt>
-							<dd class="flex-1 font-normal">
-								<div class="text-neutral-950 dark:text-neutral-100 print:text-black">
-									{definition.ja}
-								</div>
-								<div class="text-sm text-neutral-600 dark:text-neutral-400 print:text-neutral-700">
-									{definition.en}
-								</div>
-							</dd>
-						</dl>
-					</ListgroupItem>
-				{:else}
-					<ListgroupItem>要件定義に変換を実行してください。</ListgroupItem>
-				{/each}
-			</Listgroup>
-		</Card>
-	{/each}
 </div>

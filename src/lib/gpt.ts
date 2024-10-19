@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { zodFunction } from 'openai/helpers/zod.mjs';
+import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import z from 'zod';
 
 import { PUBLIC_OPENAI_API_KEY } from '$env/static/public';
@@ -8,33 +8,33 @@ import { convert } from '$lib/table-data/convertToZod';
 import type { ColumnDefinition, ColumnValue } from '$lib/table-data/types';
 
 const client = new OpenAI({ apiKey: PUBLIC_OPENAI_API_KEY, dangerouslyAllowBrowser: true });
+
+// 'gpt-4o-mini' or 'gpt-4o-2024-08-06'
 const model = 'gpt-4o-2024-08-06';
 const costFor1MReadToken = 2.5;
 const costFor1MCompToken = 10.0;
 const top_p = 0.5; // 0~2
 
 // 要件定義AI
-const RequestDefinitionType = z.enum(['functional', 'non-functional', 'note', 'example-code']);
-const RequestDefinition = z.object({
-	type: RequestDefinitionType,
+const zRequestDefinitionType = z.enum(['functional', 'non-functional', 'note', 'example-code']);
+const zRequestDefinitionItem = z.object({
+	type: zRequestDefinitionType,
 	ja: z.string({ description: 'in japanese' }),
 	en: z.string({ description: 'in english' })
 });
-const QueryTranslateRequestDefinitions = z.object({
-	summary: z.string({ description: 'Summarize requirements analysis in japanese' }),
-	requirementDefinitions: z.array(RequestDefinition)
+const zRequestDefinition = z.object({
+	category: z.string(),
+	items: z.array(zRequestDefinitionItem)
 });
-export type TranslatedRequestDefinitions = {
-	summary: string;
-	requirementDefinitions: {
-		type: 'functional' | 'non-functional' | 'note' | 'example-code';
-		ja: string;
-		en: string;
-	}[];
-};
+const zTranslatedRequestDefinitions = z.object({
+	summary: z.string({ description: 'Summarize requirements analysis in japanese' }),
+	requirementDefinitions: z.array(zRequestDefinition)
+});
+export type RequestDefinitionItem = z.infer<typeof zRequestDefinitionItem>;
+export type RequestDefinition = z.infer<typeof zRequestDefinition>;
+export type TranslatedRequestDefinitions = z.infer<typeof zTranslatedRequestDefinitions>;
 export type TranslateResults = {
-	info: string | null;
-	results: TranslatedRequestDefinitions[];
+	definitions: TranslatedRequestDefinitions | null;
 	price: number;
 };
 
@@ -51,14 +51,11 @@ export async function translateRequirementsToDefinitions(
 			},
 			{ role: 'user', content: request }
 		],
-		tools: [zodFunction({ name: 'query', parameters: QueryTranslateRequestDefinitions })],
+		response_format: zodResponseFormat(zTranslatedRequestDefinitions, 'definitions'),
 		top_p
 	});
 	return {
-		info: completion.choices[0].message.content,
-		results: completion.choices[0].message.tool_calls.map(
-			(call) => call.function.parsed_arguments as TranslatedRequestDefinitions
-		),
+		definitions: completion.choices[0].message.parsed,
 		price:
 			(costFor1MReadToken * (completion.usage?.prompt_tokens ?? 0)) / 1_000_000 +
 			(costFor1MCompToken * (completion.usage?.completion_tokens ?? 0)) / 1_000_000
@@ -66,16 +63,14 @@ export async function translateRequirementsToDefinitions(
 }
 
 // テーブルデータ生成AI
+export type TableDataRow = { [key: string]: ColumnValue };
 export type TableDataResult = {
-	info: string | null;
-	results: {
-		summary: string;
-		data: { [key: string]: ColumnValue }[];
-	}[];
+	table: { summary: string; data: TableDataRow[] } | null;
 	price: number;
 };
+
 export async function generateTableData(definitions: ColumnDefinition[], request: string): Promise<TableDataResult> {
-	const QueryTableData = z.object({
+	const zQueryTableData = z.object({
 		summary: z.string({ description: 'Summarize data info in Japanese' }),
 		data: z.array(convert(definitions))
 	});
@@ -88,14 +83,11 @@ export async function generateTableData(definitions: ColumnDefinition[], request
 			},
 			{ role: 'user', content: request }
 		],
-		tools: [zodFunction({ name: 'query', parameters: QueryTableData })],
+		response_format: zodResponseFormat(zQueryTableData, 'table'),
 		top_p
 	});
 	return {
-		info: completion.choices[0].message.content,
-		results: completion.choices[0].message.tool_calls.map(
-			(call) => call.function.parsed_arguments as { summary: string; data: { [key: string]: ColumnValue }[] }
-		),
+		table: completion.choices[0].message.parsed as { summary: string; data: TableDataRow[] } | null,
 		price:
 			(costFor1MReadToken * (completion.usage?.prompt_tokens ?? 0)) / 1_000_000 +
 			(costFor1MCompToken * (completion.usage?.completion_tokens ?? 0)) / 1_000_000
