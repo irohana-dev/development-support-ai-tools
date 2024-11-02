@@ -35,13 +35,10 @@ const costsIn1MTokens = {
  */
 export function calculatePromptCost(usage?: OpenAI.Completions.CompletionUsage) {
 	if (!usage) return 0;
-	// @ts-expect-error: TS2551 The recent `openai` lib is not supported cached tokens.
 	const input_audio_tokens = usage.prompt_tokens_details?.audio_tokens ?? 0;
-	// @ts-expect-error: TS2551
 	const input_cached_tokens = usage.prompt_tokens_details?.cached_tokens ?? 0;
 	const input_raw_tokens = usage.prompt_tokens - input_audio_tokens - input_cached_tokens;
 
-	// @ts-expect-error: TS2551
 	const output_audio_tokens = usage.completion_tokens_details?.audio_tokens ?? 0;
 	const output_raw_tokens = usage.completion_tokens - output_audio_tokens;
 	return (
