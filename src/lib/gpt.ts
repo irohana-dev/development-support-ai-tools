@@ -35,7 +35,6 @@ const costsIn1MTokens = {
  */
 export function calculatePromptCost(usage?: OpenAI.Completions.CompletionUsage) {
 	if (!usage) return 0;
-	console.log(usage);
 	// @ts-expect-error: TS2551 The recent `openai` lib is not supported cached tokens.
 	const input_audio_tokens = usage.prompt_tokens_details?.audio_tokens ?? 0;
 	// @ts-expect-error: TS2551
