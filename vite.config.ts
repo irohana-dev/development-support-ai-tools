@@ -1,6 +1,7 @@
-import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
+
 import msw from '@iodigital/vite-plugin-msw';
+import { defineConfig } from 'vitest/config';
 
 import { handlers } from './src/mocks/handlers';
 

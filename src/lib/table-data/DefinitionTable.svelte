@@ -46,7 +46,9 @@
 		{ value: ':', name: ':' }
 	];
 
-	export let data: ColumnDefinition[] = [{ key: '', type: 'text', description: '', required: true }];
+	export let data: ColumnDefinition[] = [
+		{ key: '', type: 'text', description: '', required: true }
+	];
 	export let properties: Config = { dateOrder: 'YMD', dateSeparator: '-', timeSeparator: ':' };
 
 	function addKey() {
@@ -64,7 +66,9 @@
 	}
 </script>
 
-<Table divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg">
+<Table
+	divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg"
+>
 	<TableHead>
 		<TableHeadCell class="whitespace-nowrap">項目名</TableHeadCell>
 		<TableHeadCell class="whitespace-nowrap">データ型</TableHeadCell>
@@ -80,7 +84,12 @@
 					<Input class="w-40" type="text" pattern="^[0-9A-Za-z_]+$" bind:value={row.key} />
 				</TableBodyCell>
 				<TableBodyCell>
-					<Select items={valueTypes} bind:value={row.type} placeholder="Value type" on:change={() => changeType(i)} />
+					<Select
+						items={valueTypes}
+						bind:value={row.type}
+						placeholder="Value type"
+						on:change={() => changeType(i)}
+					/>
 				</TableBodyCell>
 				<TableBodyCell>
 					{#if splitTypes.includes(row.type)}
@@ -98,7 +107,9 @@
 						type="text"
 						bind:value={row.description}
 						required={row.type === 'enum'}
-						class={row.type === 'enum' && !row.description ? 'w-52 border-red-600 bg-red-200' : 'w-60'}
+						class={row.type === 'enum' && !row.description
+							? 'w-52 border-red-600 bg-red-200'
+							: 'w-60'}
 					/>
 				</TableBodyCell>
 				<TableBodyCell>
@@ -117,9 +128,19 @@
 					<div class="flex flex-row items-center gap-2">
 						<Label>Date:</Label>
 						<Select size="sm" class="w-40" items={dateOrders} bind:value={properties.dateOrder} />
-						<Select size="sm" class="w-24" items={separators} bind:value={properties.dateSeparator} />
+						<Select
+							size="sm"
+							class="w-24"
+							items={separators}
+							bind:value={properties.dateSeparator}
+						/>
 						<Label>Time:</Label>
-						<Select size="sm" class="w-24" items={separators} bind:value={properties.timeSeparator} />
+						<Select
+							size="sm"
+							class="w-24"
+							items={separators}
+							bind:value={properties.timeSeparator}
+						/>
 					</div>
 				</div>
 			</TableBodyCell>

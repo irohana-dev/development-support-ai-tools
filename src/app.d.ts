@@ -1,5 +1,4 @@
 // See https://kit.svelte.dev/docs/types#app
-
 import type { SetupWorker } from 'msw/browser';
 
 // for information about these interfaces

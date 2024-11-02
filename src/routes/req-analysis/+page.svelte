@@ -1,17 +1,32 @@
 <script lang="ts">
-	import { Textarea, Button, Listgroup, ListgroupItem, Heading, Alert, Label, Card, P } from 'flowbite-svelte';
-	import { translateRequirementsToDefinitions, type TranslateResults } from '$lib/gpt';
+	import {
+		Textarea,
+		Button,
+		Listgroup,
+		ListgroupItem,
+		Heading,
+		Alert,
+		Label,
+		Card,
+		P
+	} from 'flowbite-svelte';
+
+	import {
+		translateRequirementsToDefinitions,
+		type TranslateResults
+	} from '$lib/req-to-defs/translator';
 
 	const USDJPY = 145.0; // 2024年の相場観より
 
 	let descriptionText = '個人情報を含む企業の機密データを扱うSaaS型のWebサービスを開発する。';
-	let requirementsText = 'OWASP10に基づきセキュリティを確保してほしい。通信方法やパスワード保管方法など。';
+	let requirementsText =
+		'OWASP10に基づきセキュリティを確保してほしい。通信方法やパスワード保管方法など。';
 
 	let results: TranslateResults = {
 		definitions: { summary: '要件定義のサマリーがここに表示されます', requirementDefinitions: [] },
 		price: 0
 	};
-	const types: { [k: string]: any } = {
+	const types: { [k: string]: string } = {
 		functional: '機能',
 		'non-functional': '非機能',
 		note: '備考',
@@ -48,7 +63,9 @@
 					<div class="flex flex-row items-center gap-4">
 						<Button type="submit" disabled={processing}>要件定義に変換</Button>
 						{#if results.price > 0}
-							<P size="sm" italic>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P>
+							<P size="sm" italic
+								>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P
+							>
 						{/if}
 					</div>
 					<P size="sm">※変換には10秒前後かかります</P>
@@ -87,7 +104,9 @@
 									<div class="text-neutral-950 dark:text-neutral-100 print:text-black">
 										{item.ja}
 									</div>
-									<div class="text-sm text-neutral-600 dark:text-neutral-400 print:text-neutral-700">
+									<div
+										class="text-sm text-neutral-600 dark:text-neutral-400 print:text-neutral-700"
+									>
 										{item.en}
 									</div>
 								</dd>

@@ -12,7 +12,12 @@ export type ColumnDefinition = {
 	required?: boolean;
 };
 
-export type ColumnValue = string | number | boolean | { [k: string]: string | number | boolean | null } | null;
+export type ColumnValue =
+	| string
+	| number
+	| boolean
+	| { [k: string]: string | number | boolean | null }
+	| null;
 
 export type Config = {
 	dateOrder: 'DMY' | 'YMD' | 'MDY';

@@ -1,5 +1,5 @@
-import type { Config } from 'tailwindcss';
 import flowbitePlugin from 'flowbite/plugin';
+import type { Config } from 'tailwindcss';
 
 export default {
 	content: [

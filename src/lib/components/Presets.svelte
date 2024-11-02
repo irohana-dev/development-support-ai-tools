@@ -5,7 +5,7 @@
 	type Preset = {
 		name: string;
 		value: string;
-		data: Object;
+		data: object;
 	};
 	let presets: Preset[] = [];
 
@@ -16,10 +16,13 @@
 	export let selected: string = '';
 	$: selectedIndex = selected ? presets.findIndex((p) => p.value === selected) : -1;
 	$: selectedPreset = selectedIndex >= 0 ? presets[selectedIndex] : null;
-	$: hasEdited = selectedPreset ? JSON.stringify(selectedPreset.data) !== JSON.stringify(data) : true;
+	$: hasEdited = selectedPreset
+		? JSON.stringify(selectedPreset.data) !== JSON.stringify(data)
+		: true;
 
 	let newName: string = '';
-	$: hasNameError = !selected && (newName.trim() === '' || presets.find((p) => p.value === newName) ? true : false);
+	$: hasNameError =
+		!selected && (newName.trim() === '' || presets.find((p) => p.value === newName) ? true : false);
 
 	export let storageKey: string = '';
 
@@ -27,7 +30,7 @@
 	 * JSONで表現可能な辞書型オブジェクトデータ。
 	 * 入出力が生じるため、bindして使うこと。
 	 */
-	export let data: Object;
+	export let data: object;
 
 	/**
 	 * 初期値のプリセット名。
@@ -38,12 +41,12 @@
 	/**
 	 * LocalStorageにデータがない場合の初期値。
 	 */
-	export let initPresetData: Object | undefined = undefined;
+	export let initPresetData: object | undefined = undefined;
 
 	/**
 	 * JSONで表現可能な辞書型データをDeep copyする。
 	 */
-	function duplicate(original: Object) {
+	function duplicate(original: object) {
 		return JSON.parse(JSON.stringify(original));
 	}
 
@@ -117,9 +120,16 @@
 	});
 </script>
 
-<div class="border-1 flex w-fit flex-row items-center gap-2 rounded bg-slate-400 p-2 shadow-md dark:bg-slate-900">
+<div
+	class="border-1 flex w-fit flex-row items-center gap-2 rounded bg-slate-400 p-2 shadow-md dark:bg-slate-900"
+>
 	<div class="text-center text-sm font-bold text-white drop-shadow-md">PRESET</div>
-	<Select items={presets} bind:value={selected} placeholder="プリセットを選択" on:change={changePreset} />
+	<Select
+		items={presets}
+		bind:value={selected}
+		placeholder="プリセットを選択"
+		on:change={changePreset}
+	/>
 	<Input
 		type="text"
 		bind:value={newName}
@@ -127,6 +137,16 @@
 		color={hasNameError ? 'red' : 'base'}
 		placeholder="新規のプリセット名"
 	/>
-	<Button class="text-nowrap" color="blue" on:click={savePreset} disabled={hasNameError || !hasEdited}>保存</Button>
-	<Button class="text-nowrap" color="red" on:click={removePreset} disabled={selectedPreset ? false : true}>×</Button>
+	<Button
+		class="text-nowrap"
+		color="blue"
+		on:click={savePreset}
+		disabled={hasNameError || !hasEdited}>保存</Button
+	>
+	<Button
+		class="text-nowrap"
+		color="red"
+		on:click={removePreset}
+		disabled={selectedPreset ? false : true}>×</Button
+	>
 </div>

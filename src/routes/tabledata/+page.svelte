@@ -1,8 +1,22 @@
 <script lang="ts">
-	import { Checkbox, Textarea, Button, Heading, Alert, Label, Card, P, Spinner } from 'flowbite-svelte';
+	import {
+		Checkbox,
+		Textarea,
+		Button,
+		Heading,
+		Alert,
+		Label,
+		Card,
+		P,
+		Spinner
+	} from 'flowbite-svelte';
 
 	import Presets from '$lib/components/Presets.svelte';
-	import { generateTableData, type TableDataResult, type TableDataRow } from '$lib/gpt';
+	import {
+		generateTableData,
+		type TableDataResult,
+		type TableDataRow
+	} from '$lib/table-data/generator';
 	import type { ColumnDefinition, Config } from '$lib/table-data/types';
 	import DataViewer from '$lib/table-data/DataViewer.svelte';
 	import DefinitionTable from '$lib/table-data/DefinitionTable.svelte';
@@ -14,7 +28,13 @@
 	type RequestData = { defs: ColumnDefinition[]; properties: Config; prompt: string };
 	const initialRequestData: RequestData = {
 		defs: [
-			{ key: 'name', type: 'fullname', description: 'Latin-style names in katakana', required: true, split: true },
+			{
+				key: 'name',
+				type: 'fullname',
+				description: 'Latin-style names in katakana',
+				required: true,
+				split: true
+			},
 			{
 				key: 'address',
 				type: 'address',
@@ -31,8 +51,19 @@
 				required: true,
 				split: false
 			},
-			{ key: 'loginTime', type: 'time', description: 'If already logged-in, or null', required: false, split: false },
-			{ key: 'countOfLogin', type: 'integer', description: 'If already logged-in, or null', required: false }
+			{
+				key: 'loginTime',
+				type: 'time',
+				description: 'If already logged-in, or null',
+				required: false,
+				split: false
+			},
+			{
+				key: 'countOfLogin',
+				type: 'integer',
+				description: 'If already logged-in, or null',
+				required: false
+			}
 		],
 		properties: { dateOrder: 'YMD', dateSeparator: '-', timeSeparator: ':' },
 		prompt: 'DB user table in a virtual world of my making game. Create mock data for 5 users.'
@@ -46,7 +77,10 @@
 	let processedRequestData: RequestData = initialRequestData;
 
 	let result: TableDataResult = {
-		table: { summary: 'ここに生成結果の要約とテーブルデータが出力されます。サマリーは常に日本語です。', data: [] },
+		table: {
+			summary: 'ここに生成結果の要約とテーブルデータが出力されます。サマリーは常に日本語です。',
+			data: []
+		},
 		price: 0
 	};
 
@@ -131,13 +165,17 @@
 					<div class="flex flex-row items-center gap-4">
 						<Button type="submit" disabled={processing}>テーブルデータを生成</Button>
 						{#if result.price > 0}
-							<P size="sm" italic>Charged ${result.price.toFixed(3)} ({(result.price * USDJPY).toFixed(1)}円)</P>
+							<P size="sm" italic>
+								Charged ${result.price.toFixed(3)} ({(result.price * USDJPY).toFixed(1)}円)
+							</P>
 						{/if}
 					</div>
 					<P size="sm">※項目数により、多くの場合は1件あたり1秒以上かかります。</P>
 				</div>
 			</Textarea>
-			<Checkbox bind:checked={streaming}>生成結果をストリーミングモードで表示する（実験的）</Checkbox>
+			<Checkbox bind:checked={streaming}>
+				生成結果をストリーミングモードで表示する（実験的）
+			</Checkbox>
 			{#if error}
 				<Alert>{error}</Alert>
 			{/if}
