@@ -2,7 +2,11 @@
 	import { Checkbox, Textarea, Button, Heading, Alert, Label, Card, P, Spinner } from 'flowbite-svelte';
 
 	import Presets from '$lib/components/Presets.svelte';
-	import { generateTableData, type TableDataResult, type TableDataRow } from '$lib/gpt';
+	import {
+		generateTableData,
+		type TableDataResult,
+		type TableDataRow
+	} from '$lib/table-data/generator';
 	import type { ColumnDefinition, Config } from '$lib/table-data/types';
 	import DataViewer from '$lib/table-data/DataViewer.svelte';
 	import DefinitionTable from '$lib/table-data/DefinitionTable.svelte';

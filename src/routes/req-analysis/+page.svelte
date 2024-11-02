@@ -1,6 +1,20 @@
 <script lang="ts">
-	import { Textarea, Button, Listgroup, ListgroupItem, Heading, Alert, Label, Card, P } from 'flowbite-svelte';
-	import { translateRequirementsToDefinitions, type TranslateResults } from '$lib/gpt';
+	import {
+		Textarea,
+		Button,
+		Listgroup,
+		ListgroupItem,
+		Heading,
+		Alert,
+		Label,
+		Card,
+		P
+	} from 'flowbite-svelte';
+
+	import {
+		translateRequirementsToDefinitions,
+		type TranslateResults
+	} from '$lib/req-to-defs/translator';
 
 	const USDJPY = 145.0; // 2024年の相場観より
 
