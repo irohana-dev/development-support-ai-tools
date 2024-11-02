@@ -1,4 +1,4 @@
-import JSONParser from '@streamparser/json/jsonparser.js';
+import { JSONParser } from '@streamparser/json';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import z from 'zod';
 
@@ -8,7 +8,7 @@ import { convert } from './convertToZod';
 import type { ColumnDefinition, ColumnValue } from './types';
 
 export type TableDataRow = { [key: string]: ColumnValue };
-export type TableData = { data: TableDataRow[]; summary: string };
+export type TableData = { summary: string; data: TableDataRow[] };
 export type TableDataResult = {
 	price: number;
 	table: null | TableData;
@@ -20,18 +20,18 @@ export async function generateTableData(
 	onStream?: (table: TableData) => void
 ): Promise<TableDataResult> {
 	const zQueryTableData = z.object({
-		data: z.array(convert(definitions)),
-		summary: z.string({ description: 'Summarize data info in Japanese' })
+		summary: z.string({ description: 'Summarize data info in Japanese' }),
+		data: z.array(convert(definitions))
 	});
 	if (onStream) {
 		const stream = await client.beta.chat.completions.stream({
 			...commonParams,
 			messages: [
 				{
-					content: `Please generate mock data based on requirements.`,
-					role: 'system'
+					role: 'system',
+					content: `Please generate mock data based on requirements.`
 				},
-				{ content: request, role: 'user' }
+				{ role: 'user', content: request }
 			],
 			response_format: zodResponseFormat(zQueryTableData, 'table'),
 			stream: true

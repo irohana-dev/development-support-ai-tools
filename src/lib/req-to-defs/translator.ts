@@ -5,17 +5,17 @@ import { calculatePromptCost, client, commonParams } from '$lib/gpt';
 
 const zRequestDefinitionType = z.enum(['functional', 'non-functional', 'note', 'example-code']);
 const zRequestDefinitionItem = z.object({
+	type: zRequestDefinitionType,
 	en: z.string({ description: 'in english' }),
-	ja: z.string({ description: 'in japanese' }),
-	type: zRequestDefinitionType
+	ja: z.string({ description: 'in japanese' })
 });
 const zRequestDefinition = z.object({
 	category: z.string(),
 	items: z.array(zRequestDefinitionItem)
 });
 const zTranslatedRequestDefinitions = z.object({
-	requirementDefinitions: z.array(zRequestDefinition),
-	summary: z.string({ description: 'Summarize requirements analysis in japanese' })
+	summary: z.string({ description: 'Summarize requirements analysis in japanese' }),
+	requirementDefinitions: z.array(zRequestDefinition)
 });
 export type RequestDefinitionItem = z.infer<typeof zRequestDefinitionItem>;
 export type RequestDefinition = z.infer<typeof zRequestDefinition>;
@@ -33,10 +33,10 @@ export async function translateRequirementsToDefinitions(
 		...commonParams,
 		messages: [
 			{
-				content: `以下システムに対して、要求に基づき要件定義してください。\nシステムの解説:\n${systemDesc}`,
-				role: 'system'
+				role: 'system',
+				content: `以下システムに対して、要求に基づき要件定義してください。\nシステムの解説:\n${systemDesc}`
 			},
-			{ content: request, role: 'user' }
+			{ role: 'user', content: request }
 		],
 		response_format: zodResponseFormat(zTranslatedRequestDefinitions, 'definitions')
 	});

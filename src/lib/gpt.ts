@@ -8,23 +8,24 @@ export const client = new OpenAI({
 });
 
 export const commonParams = {
-	// 'gpt-4o-mini' or 'gpt-4o-2024-08-06'
-	model: 'gpt-4o-2024-08-06',
+	// 'gpt-4o' or 'gpt-4o-mini'
+	model: 'gpt-4o-mini',
 	top_p: 0.5 // 0.0-(1.0)-2.0
 };
 
 const costsIn1MTokens = {
-	inputAudio: 100.0,
-	inputCached: 1.25,
-	inputText: 2.5,
-	outputAudio: 200.0,
-	outputText: 10.0
-	// gpt-4o-miniは以下
-	// inputText: 0.150,
-	// inputAudio: 0,
-	// inputCached: 0.075,
-	// outputText: 0.6,
-	// outputAudio: 0
+	// [model: gpt-4o]
+	// inputAudio: 100.0,
+	// inputCached: 1.25,
+	// inputText: 2.5,
+	// outputAudio: 200.0,
+	// outputText: 10.0
+	// [model: gpt-4o-mini]
+	inputText: 0.15,
+	inputAudio: 0,
+	inputCached: 0.075,
+	outputText: 0.6,
+	outputAudio: 0
 };
 
 /**
