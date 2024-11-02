@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
+	import {
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell
+	} from 'flowbite-svelte';
 	import type { ColumnDefinition, ColumnValue, Config } from './types';
 	import { convertColumnKey, convertColumnValue } from './convertToZod';
 
@@ -8,7 +15,10 @@
 	export let items: { [k: string]: ColumnValue }[];
 </script>
 
-<Table divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg" hoverable>
+<Table
+	divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg"
+	hoverable
+>
 	<TableHead>
 		{#each definitions as def}
 			{#each convertColumnKey(def.type, def.key, def.split) as key}

@@ -1,4 +1,5 @@
 import z, { type ZodTypeAny } from 'zod';
+
 import type { ColumnDefinition, ColumnValue, Config, ValueTypes } from './types';
 
 export function convert(colDefs: ColumnDefinition[]) {
@@ -29,7 +30,11 @@ export function convert(colDefs: ColumnDefinition[]) {
 
 			case 'fullname':
 				defAsZod = z.object(
-					{ first: z.string(), middle: z.union([z.string(), z.null()]), last: z.union([z.string(), z.null()]) },
+					{
+						first: z.string(),
+						middle: z.union([z.string(), z.null()]),
+						last: z.union([z.string(), z.null()])
+					},
 					{ description: def.description ?? undefined }
 				);
 				break;
@@ -54,14 +59,23 @@ export function convert(colDefs: ColumnDefinition[]) {
 
 			case 'address':
 				defAsZod = z.object(
-					{ country: z.union([z.string(), z.null()]), zipCode: z.union([z.string(), z.null()]), address: z.string() },
+					{
+						country: z.union([z.string(), z.null()]),
+						zipCode: z.union([z.string(), z.null()]),
+						address: z.string()
+					},
 					{ description: def.description ?? undefined }
 				);
 				break;
 
 			case 'address_jp':
 				defAsZod = z.object(
-					{ zipCode: z.string(), prefecture: z.string(), municipality: z.string(), others: z.string() },
+					{
+						zipCode: z.string(),
+						prefecture: z.string(),
+						municipality: z.string(),
+						others: z.string()
+					},
 					{ description: def.description ?? undefined }
 				);
 				break;
@@ -80,7 +94,11 @@ export function convert(colDefs: ColumnDefinition[]) {
 	return query;
 }
 
-const dateOrderKeys = { DMY: ['day', 'month', 'year'], YMD: ['year', 'month', 'day'], MDY: ['month', 'day', 'year'] };
+const dateOrderKeys = {
+	DMY: ['day', 'month', 'year'],
+	YMD: ['year', 'month', 'day'],
+	MDY: ['month', 'day', 'year']
+};
 
 // original: https://stackoverflow.com/a/2901298
 function numberWithCommas(x: number) {
@@ -93,7 +111,8 @@ export function convertColumnKey(type: ValueTypes, srcKey: string, split: boolea
 	if (type === 'date') return [`${srcKey}_year`, `${srcKey}_month`, `${srcKey}_day`];
 	if (type === 'time') return [`${srcKey}_hour`, `${srcKey}_minute`, `${srcKey}_second`];
 	if (type === 'address') return [`${srcKey}_country`, `${srcKey}_zip`, `${srcKey}_detail`];
-	if (type === 'address_jp') return [`${srcKey}_zip`, `${srcKey}_pref`, `${srcKey}_muni`, `${srcKey}_other`];
+	if (type === 'address_jp')
+		return [`${srcKey}_zip`, `${srcKey}_pref`, `${srcKey}_muni`, `${srcKey}_other`];
 	return [srcKey];
 }
 
@@ -111,11 +130,17 @@ export function convertColumnValue(
 	if (type === 'boolean') return [csv ? (srcValue ? 'TRUE' : 'FALSE') : srcValue ? 'Yes' : 'No'];
 	const obj = srcValue as { [k: string]: string | number | boolean | null };
 	if (split) {
-		if (type === 'fullname') return [obj.first as string, (obj.middle ?? '') as string, (obj.last ?? '') as string];
+		if (type === 'fullname')
+			return [obj.first as string, (obj.middle ?? '') as string, (obj.last ?? '') as string];
 		if (type === 'date') return [obj.year!.toString(), obj.month!.toString(), obj.day!.toString()];
-		if (type === 'time') return [obj.hour!.toString(), obj.minute!.toString(), obj.second!.toString()];
+		if (type === 'time')
+			return [obj.hour!.toString(), obj.minute!.toString(), obj.second!.toString()];
 		if (type === 'address')
-			return [(obj.country ?? '').toString(), (obj.zipCode ?? '').toString(), obj.address!.toString()];
+			return [
+				(obj.country ?? '').toString(),
+				(obj.zipCode ?? '').toString(),
+				obj.address!.toString()
+			];
 		if (type === 'address_jp')
 			return [
 				obj.zipCode!.toString(),
@@ -130,7 +155,8 @@ export function convertColumnValue(
 		if (type === 'date') return [dateOrderKeys[dateOrder].map((k) => obj[k]).join(d)];
 		if (type === 'time') return [`${obj.hour}${t}${obj.minute}${t}${obj.second}`];
 		if (type === 'address') return [`${obj.country}${lf}${obj.address} ${obj.zipCode}`];
-		if (type === 'address_jp') return [`${obj.zipCode}${lf}${obj.prefecture}${obj.municipality}${obj.others}`];
+		if (type === 'address_jp')
+			return [`${obj.zipCode}${lf}${obj.prefecture}${obj.municipality}${obj.others}`];
 	}
 	return [`${srcValue}`];
 }

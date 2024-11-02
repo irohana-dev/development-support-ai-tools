@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
+	import {
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell
+	} from 'flowbite-svelte';
 	import type { ColumnDefinition, ColumnValue, Config, ValueTypes } from './types';
 	import { convertColumnKey, convertColumnValue } from './convertToZod';
 
@@ -12,8 +19,17 @@
 		fullname: { first: 'Kerry', middle: 'T.', last: 'Andrew' },
 		date: { year: 2000, month: 1, day: 1 },
 		time: { hour: 12, minute: 30, second: 0 },
-		address: { country: 'United State', address: '1234 ABC STREET #450 Seattle WA', zipCode: '12345' },
-		address_jp: { zipCode: '123-4567', prefecture: '東京都', municipality: '千代田区', others: '丸の内1-2-3' },
+		address: {
+			country: 'United State',
+			address: '1234 ABC STREET #450 Seattle WA',
+			zipCode: '12345'
+		},
+		address_jp: {
+			zipCode: '123-4567',
+			prefecture: '東京都',
+			municipality: '千代田区',
+			others: '丸の内1-2-3'
+		},
 		gender: 'male'
 	};
 
@@ -21,7 +37,9 @@
 	export let properties: Config = { dateOrder: 'YMD', dateSeparator: '-', timeSeparator: ':' };
 </script>
 
-<Table divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg">
+<Table
+	divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg"
+>
 	<TableHead>
 		{#each definitions as def}
 			{#each convertColumnKey(def.type, def.key, def.split) as key}
