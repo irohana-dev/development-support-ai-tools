@@ -16,8 +16,6 @@
 		type TranslateResults
 	} from '$lib/req-to-defs/translator';
 
-	const USDJPY = 145.0; // 2024年の相場観より
-
 	let descriptionText = '個人情報を含む企業の機密データを扱うSaaS型のWebサービスを開発する。';
 	let requirementsText =
 		'OWASP10に基づきセキュリティを確保してほしい。通信方法やパスワード保管方法など。';
@@ -63,9 +61,7 @@
 					<div class="flex flex-row items-center gap-4">
 						<Button type="submit" disabled={processing}>要件定義に変換</Button>
 						{#if results.price > 0}
-							<P size="sm" italic
-								>Charged ${results.price.toFixed(3)} ({(results.price * USDJPY).toFixed(1)}円)</P
-							>
+							<P size="sm" italic>Charged ${results.price.toFixed(4)}</P>
 						{/if}
 					</div>
 					<P size="sm">※変換には10秒前後かかります</P>

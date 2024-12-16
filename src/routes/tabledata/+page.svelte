@@ -23,8 +23,6 @@
 	import Preview from '$lib/table-data/Preview.svelte';
 	import { convertColumnKey, convertColumnValue } from '$lib/table-data/convertToZod';
 
-	const USDJPY = 145.0; // 2024年の相場観より
-
 	type RequestData = { defs: ColumnDefinition[]; properties: Config; prompt: string };
 	const initialRequestData: RequestData = {
 		defs: [
@@ -165,9 +163,7 @@
 					<div class="flex flex-row items-center gap-4">
 						<Button type="submit" disabled={processing}>テーブルデータを生成</Button>
 						{#if result.price > 0}
-							<P size="sm" italic>
-								Charged ${result.price.toFixed(3)} ({(result.price * USDJPY).toFixed(1)}円)
-							</P>
+							<P size="sm" italic>Charged ${result.price.toFixed(4)}</P>
 						{/if}
 					</div>
 					<P size="sm">※項目数により、多くの場合は1件あたり1秒以上かかります。</P>
