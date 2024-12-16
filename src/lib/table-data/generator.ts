@@ -34,7 +34,8 @@ export async function generateTableData(
 				{ role: 'user', content: request }
 			],
 			response_format: zodResponseFormat(zQueryTableData, 'table'),
-			stream: true
+			stream: true,
+			stream_options: { include_usage: true }
 		});
 		const jsonParser = new JSONParser({
 			emitPartialTokens: true,
@@ -54,8 +55,10 @@ export async function generateTableData(
 			jsonParser.write(chunk.choices[0]?.delta.content ?? '');
 		}
 		const completion = await stream.finalChatCompletion();
-		// NOTE: Streamモードではトークン数が返ってこない
-		return { price: 0, table: completion.choices[0].message.parsed };
+		return {
+			price: calculatePromptCost(completion.usage),
+			table: completion.choices[0].message.parsed
+		};
 	} else {
 		const completion = await client.beta.chat.completions.parse({
 			...commonParams,
