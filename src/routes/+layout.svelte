@@ -3,10 +3,31 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import '../app.css';
-	import { DarkMode, Navbar, NavBrand, NavHamburger, NavLi, NavUl, Modal } from 'flowbite-svelte';
+	import {
+		DarkMode,
+		Navbar,
+		NavBrand,
+		NavHamburger,
+		NavLi,
+		NavUl,
+		Modal,
+		Button,
+		Hr,
+		Label,
+		Select
+	} from 'flowbite-svelte';
+	import { commonParams, setModel } from '$lib/gpt';
 
 	const appVersion = APP_VERSION;
 	let isOpenedAppInfo = false;
+	let modelName = commonParams.model;
+	const modelNames = [
+		{ name: 'GPT-4o', value: 'gpt-4o' },
+		{ name: 'GPT-4o mini (costs: 1/16)', value: 'gpt-4o-mini' }
+	];
+	function onChangeModel() {
+		setModel(modelName);
+	}
 
 	$: activeUrl = $page.url.pathname;
 
@@ -58,4 +79,12 @@
 <Modal bind:open={isOpenedAppInfo} title="このシステムについて" outsideclose>
 	<p>Development Support AI Tools ver.{appVersion}</p>
 	<p>Copyright &copy; 2024 Umeda.</p>
+	<Hr />
+	<Label>
+		使用するモデル
+		<Select class="mt-2" bind:value={modelName} items={modelNames} on:change={onChangeModel} />
+	</Label>
+	<svelte:fragment slot="footer">
+		<Button color="alternative" on:click={() => (isOpenedAppInfo = false)}>閉じる</Button>
+	</svelte:fragment>
 </Modal>
