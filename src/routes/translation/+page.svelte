@@ -87,7 +87,7 @@
 	<Heading tag="h2" class="print:text-gray-800">カスタム翻訳AI</Heading>
 	<Card size="xl" class="gap-4 print:border-gray-300 print:bg-white">
 		<Presets
-			storageKey="TableDataPreset"
+			storageKey="TranslationPreset"
 			bind:data={requestData}
 			initPresetData={initialRequestData}
 			initPresetName="デフォルト"
