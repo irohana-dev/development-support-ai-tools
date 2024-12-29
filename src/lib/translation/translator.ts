@@ -8,7 +8,10 @@ import type { WordDefinition } from './types';
 
 const zTranslatePattern = z.object({
 	en: z.string({ description: 'English translated text' }),
-	nuance: z.union([z.string({ description: 'Nuance description in Japanese' }), z.null()])
+	// ja: z.string({ description: 'Japanese re-translated text' }),
+	nuance: z.string({
+		description: 'Explanation of the nuances of English sentences in Japanese'
+	})
 });
 const zTranslateData = z.object({
 	summary: z.string({ description: 'Summarize the main points of the translation in Japanese.' }),
@@ -24,21 +27,24 @@ export type TranslationResult = {
 
 export async function translate(
 	wordDefinitions: WordDefinition[],
-	request: string,
+	instruction: string,
+	sourceText: string,
 	onStream?: (result: TranslationData) => void
 ): Promise<TranslationResult> {
 	const sysPrompt =
-		'Please translate into English. ' +
+		'You are a professional translator. ' +
 		'Below is a list of TSV format terms to consider for translation:\n\n' +
 		'Category\tJapanese\tEnglish\n' +
-		wordDefinitions.map((w) => `${w.category}\t${w.ja}\t${w.en}`).join('\n');
+		wordDefinitions.map((w) => `${w.category}\t${w.ja}\t${w.en}`).join('\n') +
+		'\n\n' +
+		instruction;
 
 	if (onStream) {
 		const stream = await client.beta.chat.completions.stream({
 			...commonParams,
 			messages: [
 				{ role: 'system', content: sysPrompt },
-				{ role: 'user', content: request }
+				{ role: 'user', content: sourceText }
 			],
 			response_format: zodResponseFormat(zTranslateData, 'translated'),
 			stream: true,
@@ -71,7 +77,7 @@ export async function translate(
 			...commonParams,
 			messages: [
 				{ content: sysPrompt, role: 'system' },
-				{ content: request, role: 'user' }
+				{ content: sourceText, role: 'user' }
 			],
 			response_format: zodResponseFormat(zTranslateData, 'translated')
 		});
