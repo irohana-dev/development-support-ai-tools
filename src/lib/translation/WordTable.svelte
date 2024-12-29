@@ -31,6 +31,7 @@
 	divClass="border border-gray-200 dark:border-gray-500 overflow-x-auto relative sm:rounded-lg"
 >
 	<TableHead>
+		<!-- TODO: 並び替え -->
 		<TableHeadCell class="whitespace-nowrap">カテゴリー</TableHeadCell>
 		<TableHeadCell class="whitespace-nowrap">日本語名</TableHeadCell>
 		<TableHeadCell class="whitespace-nowrap">英語名</TableHeadCell>
@@ -43,10 +44,10 @@
 					<Input class="w-40" type="text" bind:value={row.category} />
 				</TableBodyCell>
 				<TableBodyCell>
-					<Input class="w-50" type="text" bind:value={row.ja} />
+					<Input class="w-72" type="text" bind:value={row.ja} />
 				</TableBodyCell>
 				<TableBodyCell>
-					<Input class="w-50" type="text" bind:value={row.en} />
+					<Input class="w-72" type="text" bind:value={row.en} />
 				</TableBodyCell>
 				<TableBodyCell>
 					{#if i > 0}

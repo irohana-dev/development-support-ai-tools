@@ -15,6 +15,7 @@
 	import { translate, type TranslationResult } from '$lib/translation/translator';
 	import type { WordDefinition, Config } from '$lib/translation/types';
 	import WordTable from '$lib/translation/WordTable.svelte';
+	import { onMount } from 'svelte';
 
 	type RequestData = { defs: WordDefinition[]; properties: Config; prompt: string };
 	const initialRequestData: RequestData = {
@@ -31,8 +32,7 @@
 			}
 		],
 		properties: {},
-		prompt:
-			'Translate the comment that requests the next bug fix into 3 pattern English:\nXXXのinputを空欄にするとエラーが出るため修正してください'
+		prompt: 'Translate the comment that requests the next bug fix into 3 pattern English.'
 	};
 
 	let requestData: RequestData = {
@@ -41,14 +41,12 @@
 		prompt: ''
 	};
 	let processedRequestData: RequestData = initialRequestData;
+	let sourceText = 'XXXのinputを空欄にするとエラーが出るため修正してください';
 
 	let result: TranslationResult = {
 		translated: {
-			summary: 'ここに生成結果の要約とテーブルデータが出力されます。サマリーは常に日本語です。',
-			data: [
-				{ en: 'Here is translated pattern #1.', nuance: '翻訳パターンのニュアンス説明文' },
-				{ en: 'This is the pattern #2.', nuance: null }
-			]
+			summary: 'ここに翻訳観点の要点が示され、この下に翻訳結果が出力されます。',
+			data: []
 		},
 		price: 0
 	};
@@ -65,6 +63,7 @@
 			const newResult = await translate(
 				requestData.defs,
 				requestData.prompt,
+				sourceText,
 				// ストリーミングはMSWのmockなし
 				streaming ? (table) => (result.translated = table) : undefined
 			);
@@ -81,6 +80,10 @@
 			processing = false;
 		}
 	}
+
+	onMount(() => {
+		if (!window.__msw) streaming = true;
+	});
 </script>
 
 <div class="container m-auto flex max-w-5xl flex-col gap-8 py-6">
@@ -96,11 +99,14 @@
 			<Label>用語定義（ドメイン知識の付与）</Label>
 			<WordTable bind:data={requestData.defs} bind:properties={requestData.properties} />
 
-			<Label for="requirements">生成するデータの要件（件数や条件など）</Label>
-			<Textarea bind:value={requestData.prompt} id="requirements">
+			<Label for="instruction">翻訳指示文（英語推奨）</Label>
+			<Textarea bind:value={requestData.prompt} id="instruction" />
+			<hr class="border-gray-700" />
+			<Label for="sourceText">原文（プリセット対象外）</Label>
+			<Textarea bind:value={sourceText} id="sourceText" rows={4}>
 				<div slot="footer" class="flex items-center justify-between">
 					<div class="flex flex-row items-center gap-4">
-						<Button type="submit" disabled={processing}>テーブルデータを生成</Button>
+						<Button type="submit" disabled={processing}>翻訳</Button>
 						{#if result.price > 0}
 							<P size="sm" italic>Charged ${result.price.toFixed(4)}</P>
 						{/if}
@@ -115,7 +121,7 @@
 		</form>
 		<div class="hidden flex-col gap-6 print:flex">
 			<div class="flex flex-col gap-4">
-				<Heading tag="h5" color="text-neutral-700">生成するデータの要件（件数や条件など）</Heading>
+				<Heading tag="h5" color="text-neutral-700">翻訳指示文とテキスト</Heading>
 				<P color="text-black">{requestData.prompt}</P>
 			</div>
 		</div>
@@ -141,6 +147,7 @@
 						{line}<br />
 					{/each}
 				</div>
+				<hr class="border-gray-700 dark:border-gray-700" />
 				{#if pattern.nuance}
 					<hr class="border-gray-700 dark:border-gray-700" />
 					<div class="p-2 text-xs text-gray-800 dark:text-gray-300">
