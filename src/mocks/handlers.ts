@@ -55,6 +55,37 @@ const GPT_RESULT_TABLE_DATA = {
 	}
 };
 
+const GPT_RESULT_TRANSLATION = {
+	choices: [
+		{
+			index: 0,
+			message: {
+				role: 'assistant',
+				content:
+					'{"summary":"XXXのinputが空欄の時にエラーが発生するため、修正を依頼しています。","data":[{"en":"Please fix the error that occurs when the input for XXX is left blank.","nuance":null},{"en":"Could you correct the issue that arises when the input for XXX is empty?" ,"nuance":null},{"en":"I would appreciate it if you could resolve the error that happens when the input for XXX is not filled in." ,"nuance":null}]}',
+				refusal: null
+			},
+			logprobs: null,
+			finish_reason: 'stop'
+		}
+	],
+	usage: {
+		prompt_tokens: 187,
+		completion_tokens: 110,
+		total_tokens: 297,
+		prompt_tokens_details: {
+			cached_tokens: 0,
+			audio_tokens: 0
+		},
+		completion_tokens_details: {
+			reasoning_tokens: 0,
+			audio_tokens: 0,
+			accepted_prediction_tokens: 0,
+			rejected_prediction_tokens: 0
+		}
+	}
+};
+
 export const handlers = [
 	http.post('https://api.openai.com/v1/chat/completions', async ({ request }) => {
 		const requestData = (await request.json()) as ChatCompletionCreateParams;
@@ -74,6 +105,8 @@ export const handlers = [
 			response = { ...response, ...GPT_RESULT_REQUEST_ANALYSIS };
 		} else if (requestContent.includes('mock data')) {
 			response = { ...response, ...GPT_RESULT_TABLE_DATA };
+		} else if (requestContent.includes('translate')) {
+			response = { ...response, ...GPT_RESULT_TRANSLATION };
 		} else throw new Error('Unknown GPT call at MSW handler');
 		return HttpResponse.json(response);
 	})
