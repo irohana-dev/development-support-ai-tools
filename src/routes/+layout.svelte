@@ -51,8 +51,9 @@
 		</NavBrand>
 		<NavHamburger />
 		<NavUl {activeUrl}>
-			<NavLi href="/req-analysis">要件定義AI</NavLi>
-			<NavLi href="/tabledata">テーブルデータ生成AI</NavLi>
+			<NavLi href="/translation">カスタム翻訳</NavLi>
+			<NavLi href="/req-analysis">要件定義</NavLi>
+			<NavLi href="/tabledata">テーブルデータ生成</NavLi>
 			<NavLi nonActiveClass="cursor-pointer" on:click={() => (isOpenedAppInfo = true)}>
 				バージョン情報
 			</NavLi>
