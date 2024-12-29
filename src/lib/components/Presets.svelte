@@ -103,6 +103,66 @@
 		selected = '';
 	}
 
+	/**
+	 * プリセットをJSON形式でエクスポートしファイル保存する。
+	 */
+	function exportPreset() {
+		const jsonData = JSON.stringify({
+			key: storageKey,
+			name: selectedPreset?.name ?? newName ?? 'No name',
+			data
+		});
+		const blob = new Blob([jsonData], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${storageKey}_${selectedPreset?.name ?? newName ?? 'NoName'}.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	/**
+	 * プリセットをJSON形式でインポートしデータを読み込む。
+	 */
+	async function importPreset() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		const importedData = await new Promise<{ key: string; name: string; data: object }>(
+			(resolve, reject) => {
+				input.onchange = async (e) => {
+					const file = (e.target as HTMLInputElement).files?.[0];
+					if (!file) return reject('No file selected');
+
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						try {
+							const result = e.target?.result as string;
+							const data = JSON.parse(result);
+							resolve(data);
+						} catch (error) {
+							reject(error);
+						}
+					};
+					reader.onerror = reject;
+					reader.readAsText(file);
+				};
+				input.click();
+			}
+		);
+		if (storageKey && storageKey !== importedData.key) {
+			alert('この画面のプリセットに対応しないファイルです。');
+			return;
+		}
+		data = importedData.data;
+		if (presets.find((p) => p.value === importedData.name)) {
+			selected = importedData.name;
+		} else {
+			selected = '';
+			newName = importedData.name ?? 'No name';
+		}
+	}
+
 	onMount(() => {
 		// プリセットの初期化処理
 		if (storageKey) {
@@ -123,7 +183,7 @@
 <div
 	class="border-1 flex w-fit flex-row items-center gap-2 rounded bg-slate-400 p-2 shadow-md dark:bg-slate-900"
 >
-	<div class="text-center text-sm font-bold text-white drop-shadow-md">PRESET</div>
+	<div class="p-2 text-center text-sm font-bold text-white drop-shadow-md">PRESET</div>
 	<Select
 		items={presets}
 		bind:value={selected}
@@ -148,5 +208,17 @@
 		color="red"
 		on:click={removePreset}
 		disabled={selectedPreset ? false : true}>×</Button
+	>
+	<div class="p-1">|</div>
+	<Button class="text-nowrap" color="green" size="xs" on:click={exportPreset}>エクスポート</Button>
+	<Button class="text-nowrap" color="green" size="xs" on:click={importPreset} disabled={hasEdited}
+		>インポート</Button
+	>
+	<Button
+		class="text-nowrap"
+		color="light"
+		size="xs"
+		on:click={changePreset}
+		disabled={selectedPreset ? !hasEdited : true}>リセット</Button
 	>
 </div>
