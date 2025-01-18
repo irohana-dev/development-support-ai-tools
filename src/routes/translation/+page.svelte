@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import {
 		Checkbox,
 		Textarea,
@@ -15,7 +16,6 @@
 	import { translate, type TranslationResult } from '$lib/translation/translator';
 	import type { WordDefinition, Config } from '$lib/translation/types';
 	import WordTable from '$lib/translation/WordTable.svelte';
-	import { onMount } from 'svelte';
 
 	type RequestData = { defs: WordDefinition[]; properties: Config; prompt: string };
 	const initialRequestData: RequestData = {
