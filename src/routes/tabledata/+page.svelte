@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import {
 		Checkbox,
 		Textarea,
@@ -89,8 +90,10 @@
 	async function generate() {
 		if (processing) return;
 		processing = true;
+		error = '';
 		try {
 			result = { table: { summary: '', data: [] }, price: 0 };
+			processedRequestData = JSON.parse(JSON.stringify(requestData));
 			const newResult = await generateTableData(
 				requestData.defs,
 				requestData.prompt,
@@ -102,10 +105,10 @@
 				error = 'AIの推論処理に失敗しました。APIキーなど設定を確認ください。';
 				return;
 			}
-			processedRequestData = JSON.parse(JSON.stringify(requestData));
 			result = newResult;
 		} catch (e: unknown) {
 			error = (e as Error).toString();
+			console.error(e);
 		} finally {
 			processing = false;
 		}
@@ -139,6 +142,10 @@
 		a.download = `tabledata_${data.length}.csv`;
 		a.click();
 	}
+
+	onMount(() => {
+		if (!window.__msw) streaming = true;
+	});
 </script>
 
 <div class="container m-auto flex max-w-5xl flex-col gap-8 py-6">
@@ -169,9 +176,7 @@
 					<P size="sm">※項目数により、多くの場合は1件あたり1秒以上かかります。</P>
 				</div>
 			</Textarea>
-			<Checkbox bind:checked={streaming}>
-				生成結果をストリーミングモードで表示する（実験的）
-			</Checkbox>
+			<Checkbox bind:checked={streaming}>生成結果をストリーミング表示する</Checkbox>
 			{#if error}
 				<Alert>{error}</Alert>
 			{/if}

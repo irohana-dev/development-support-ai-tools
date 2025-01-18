@@ -81,7 +81,7 @@
 		{#each data as row, i}
 			<TableBodyRow>
 				<TableBodyCell>
-					<Input class="w-40" type="text" pattern="^[0-9A-Za-z_]+$" bind:value={row.key} />
+					<Input class="w-40" type="text" bind:value={row.key} />
 				</TableBodyCell>
 				<TableBodyCell>
 					<Select
@@ -101,14 +101,14 @@
 				</TableBodyCell>
 				<TableBodyCell>
 					{#if row.type === 'enum'}
-						<P size="sm" class="text-orange-600">半角カンマ区切りで選択肢を記入ください</P>
+						<P size="sm" class="text-orange-600">選択肢を半角英字、カンマ区切りで入力</P>
 					{/if}
 					<Input
 						type="text"
 						bind:value={row.description}
 						required={row.type === 'enum'}
 						class={row.type === 'enum' && !row.description
-							? 'w-52 border-red-600 bg-red-200'
+							? 'w-60 border-red-600 bg-red-200'
 							: 'w-60'}
 					/>
 				</TableBodyCell>
