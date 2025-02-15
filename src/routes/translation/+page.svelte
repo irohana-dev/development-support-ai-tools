@@ -9,7 +9,9 @@
 		Label,
 		Card,
 		P,
-		Spinner
+		Spinner,
+		Input,
+		Toggle
 	} from 'flowbite-svelte';
 
 	import Presets from '$lib/components/Presets.svelte';
@@ -17,26 +19,39 @@
 	import type { WordDefinition, Config } from '$lib/translation/types';
 	import WordTable from '$lib/translation/WordTable.svelte';
 
-	type RequestData = { defs: WordDefinition[]; properties: Config; prompt: string };
+	type RequestData = {
+		srcLang: string;
+		destLang: string;
+		defs: WordDefinition[];
+		enableDefs: boolean;
+		properties: Config;
+		prompt: string;
+	};
 	const initialRequestData: RequestData = {
+		srcLang: '',
+		destLang: '',
 		defs: [
 			{
 				category: '当社名',
-				ja: 'サンプル株式会社',
-				en: 'Example Inc.'
+				src: 'サンプル株式会社',
+				dest: 'Example Inc.'
 			},
 			{
 				category: 'ユーザーの職業',
-				ja: 'Webエンジニア',
-				en: 'SE(Web)'
+				src: 'Webエンジニア',
+				dest: 'SE(Web)'
 			}
 		],
+		enableDefs: false,
 		properties: {},
-		prompt: 'Translate the comment that requests the next bug fix into 3 pattern English.'
+		prompt: 'Translate in 3 nuances: direct, polite, businesslike'
 	};
 
 	let requestData: RequestData = {
+		srcLang: '',
+		destLang: '',
 		defs: [],
+		enableDefs: false,
 		properties: { dateOrder: 'YMD', dateSeparator: '-', timeSeparator: ':' },
 		prompt: ''
 	};
@@ -58,12 +73,15 @@
 	async function generate() {
 		if (processing) return;
 		processing = true;
+		error = '';
 		try {
 			result = { translated: { summary: '', data: [] }, price: 0 };
 			const newResult = await translate(
-				requestData.defs,
+				requestData.enableDefs ? requestData.defs : [],
 				requestData.prompt,
 				sourceText,
+				requestData.srcLang,
+				requestData.destLang || 'English',
 				// ストリーミングはMSWのmockなし
 				streaming ? (table) => (result.translated = table) : undefined
 			);
@@ -90,16 +108,48 @@
 	<Heading tag="h2" class="print:text-gray-800">カスタム翻訳AI</Heading>
 	<Card size="xl" class="gap-4 print:border-gray-300 print:bg-white">
 		<Presets
-			storageKey="TranslationPreset"
+			storageKey="TranslationPreset-v2"
 			bind:data={requestData}
 			initPresetData={initialRequestData}
 			initPresetName="デフォルト"
 		/>
 		<form on:submit|preventDefault={generate} class="flex flex-col gap-4 print:hidden">
-			<Label>用語定義（ドメイン知識の付与）</Label>
-			<WordTable bind:data={requestData.defs} bind:properties={requestData.properties} />
+			<Label>翻訳元と翻訳先の言語</Label>
+			<div class="flex flex-row items-center gap-4">
+				<Input type="text" placeholder="Any" bind:value={requestData.srcLang} list="languages" />
+				<div class="text-md">➡</div>
+				<Input
+					type="text"
+					placeholder="English"
+					bind:value={requestData.destLang}
+					list="languages"
+				/>
+			</div>
+			<datalist id="languages">
+				<option value="Japanese">日本語</option>
+				<option value="English">英語</option>
+				<option value="BritishEnglish">イギリス英語</option>
+				<option value="SimplifiedChinese">中国語（簡体字、主に中国本土やシンガポール）</option>
+				<option value="TraditionalChinese">中国語（繁体字、主に香港や台湾）</option>
+				<option value="Hindi">ヒンディー語（主にインドとフィジー）</option>
+				<option value="Spanish">スペイン語（主にスペインと中南米）</option>
+				<option value="French">フランス語（主に欧州、他にカナダやコンゴ共和国）</option>
+				<option value="Arabic">アラビア語（主に中東、他に北アフリカの一部）</option>
+				<option value="Vietnamese">ベトナム語</option>
+				<option value="BahasaMelayu">マレー語・インドネシア語</option>
+			</datalist>
 
-			<Label for="instruction">翻訳指示文（英語推奨）</Label>
+			<div class="flex flex-row items-center justify-between">
+				<Label>ドメイン用語やコンテキストの定義（任意）</Label>
+				<Toggle bind:checked={requestData.enableDefs}>有効化</Toggle>
+			</div>
+			<WordTable
+				bind:data={requestData.defs}
+				bind:properties={requestData.properties}
+				bind:enable={requestData.enableDefs}
+			/>
+
+			<Label for="instruction">翻訳指示文（任意）</Label>
 			<Textarea bind:value={requestData.prompt} id="instruction" />
 			<hr class="border-gray-700" />
 			<Label for="sourceText">原文（プリセット対象外）</Label>
@@ -143,7 +193,7 @@
 					TRANSLATION #{i + 1}
 				</div>
 				<div class="px-2 py-4 text-blue-900 dark:text-blue-200">
-					{#each pattern.en.split('\n') as line}
+					{#each pattern.translated.split('\n') as line}
 						{line}<br />
 					{/each}
 				</div>
