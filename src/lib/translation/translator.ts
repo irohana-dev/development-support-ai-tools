@@ -1,5 +1,6 @@
 import { JSONParser } from '@streamparser/json';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
+import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import z from 'zod';
 
 import { calculatePromptCost, client, commonParams } from '$lib/gpt';
@@ -44,15 +45,17 @@ export async function translate(
 		(instruction
 			? `Please follow the instructions below to translate user message ${fromAndInto}:\n${instruction}`
 			: `Please translate the user message ${fromAndInto}.`);
+	const messages: ChatCompletionMessageParam[] = [
+		{ role: 'system', content: sysPrompt },
+		{ role: 'user', content: sourceText }
+	];
+	const response_format = zodResponseFormat(zTranslateData, 'translated');
 
 	if (onStream) {
 		const stream = await client.beta.chat.completions.stream({
 			...commonParams,
-			messages: [
-				{ role: 'system', content: sysPrompt },
-				{ role: 'user', content: sourceText }
-			],
-			response_format: zodResponseFormat(zTranslateData, 'translated'),
+			messages,
+			response_format,
 			stream: true,
 			stream_options: { include_usage: true }
 		});
@@ -81,11 +84,8 @@ export async function translate(
 	} else {
 		const completion = await client.beta.chat.completions.parse({
 			...commonParams,
-			messages: [
-				{ content: sysPrompt, role: 'system' },
-				{ content: sourceText, role: 'user' }
-			],
-			response_format: zodResponseFormat(zTranslateData, 'translated')
+			messages,
+			response_format
 		});
 		return {
 			price: calculatePromptCost(completion.usage),
