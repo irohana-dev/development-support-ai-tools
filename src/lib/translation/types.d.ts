@@ -1,7 +1,7 @@
 export type WordDefinition = {
 	category: string;
-	ja: string;
-	en: string;
+	src: string;
+	dest: string;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
