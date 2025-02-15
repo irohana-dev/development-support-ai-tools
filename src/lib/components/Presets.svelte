@@ -181,44 +181,50 @@
 </script>
 
 <div
-	class="border-1 flex w-fit flex-row items-center gap-2 rounded bg-slate-400 p-2 shadow-md dark:bg-slate-900"
+	class="border-1 flex w-full flex-col items-stretch gap-2 rounded bg-slate-400
+		p-2 shadow-md md:flex-row dark:bg-slate-900 {$$props.class ?? ''}"
 >
-	<div class="p-2 text-center text-sm font-bold text-white drop-shadow-md">PRESET</div>
-	<Select
-		items={presets}
-		bind:value={selected}
-		placeholder="プリセットを選択"
-		on:change={changePreset}
-	/>
-	<Input
-		type="text"
-		bind:value={newName}
-		on:change={changeNewPresetState}
-		color={hasNameError ? 'red' : 'base'}
-		placeholder="新規のプリセット名"
-	/>
-	<Button
-		class="text-nowrap"
-		color="blue"
-		on:click={savePreset}
-		disabled={hasNameError || !hasEdited}>保存</Button
-	>
-	<Button
-		class="text-nowrap"
-		color="red"
-		on:click={removePreset}
-		disabled={selectedPreset ? false : true}>×</Button
-	>
-	<div class="p-1">|</div>
-	<Button class="text-nowrap" color="green" size="xs" on:click={exportPreset}>エクスポート</Button>
-	<Button class="text-nowrap" color="green" size="xs" on:click={importPreset} disabled={hasEdited}
-		>インポート</Button
-	>
-	<Button
-		class="text-nowrap"
-		color="light"
-		size="xs"
-		on:click={changePreset}
-		disabled={selectedPreset ? !hasEdited : true}>リセット</Button
-	>
+	<div class="p-2 text-sm font-bold text-white drop-shadow-md md:text-center">PRESET</div>
+	<div class="flex w-full flex-1 flex-row items-center gap-2">
+		<Select
+			items={presets}
+			bind:value={selected}
+			placeholder="プリセットを選択"
+			on:change={changePreset}
+		/>
+		<Input
+			type="text"
+			bind:value={newName}
+			on:change={changeNewPresetState}
+			color={hasNameError ? 'red' : 'base'}
+			placeholder="新規のプリセット名"
+		/>
+		<Button
+			class="text-nowrap"
+			color="blue"
+			on:click={savePreset}
+			disabled={hasNameError || !hasEdited}>保存</Button
+		>
+		<Button
+			class="text-nowrap"
+			color="red"
+			on:click={removePreset}
+			disabled={selectedPreset ? false : true}>×</Button
+		>
+	</div>
+	<div class="hidden p-2 md:block">|</div>
+	<div class="flex flex-row items-center justify-end gap-2">
+		<Button class="text-nowrap" color="green" size="xs" on:click={exportPreset}>エクスポート</Button
+		>
+		<Button class="text-nowrap" color="green" size="xs" on:click={importPreset} disabled={hasEdited}
+			>インポート</Button
+		>
+		<Button
+			class="text-nowrap"
+			color="light"
+			size="xs"
+			on:click={changePreset}
+			disabled={selectedPreset ? !hasEdited : true}>リセット</Button
+		>
+	</div>
 </div>
