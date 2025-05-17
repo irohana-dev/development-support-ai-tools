@@ -16,15 +16,15 @@
 		Label,
 		Select
 	} from 'flowbite-svelte';
-	import { commonParams, setModel } from '$lib/gpt';
+	import { commonParams, modelList, setModel } from '$lib/gpt';
 
 	const appVersion = APP_VERSION;
 	let isOpenedAppInfo = false;
 	let modelName = commonParams.model;
-	const modelNames = [
-		{ name: 'GPT-4o', value: 'gpt-4o' },
-		{ name: 'GPT-4o mini (costs: 1/16)', value: 'gpt-4o-mini' }
-	];
+	const modelNames = modelList.map((model) => ({
+		name: model.displayName,
+		value: model.model
+	}));
 	function onChangeModel() {
 		setModel(modelName);
 	}
