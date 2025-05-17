@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 
-import { building } from '$app/environment';
+import { dev } from '$app/environment';
 
 import { PUBLIC_OPENAI_API_KEY } from '$env/static/public';
 
@@ -18,8 +18,9 @@ export const modelList = [
 	{ displayName: 'GPT-4o mini (レガシー)', model: 'gpt-4o-mini' }
 ] as { displayName: string; model: ModelName }[];
 export const commonParams = {
-	model: (building ? 'gpt-4.1-mini' : 'gpt-4.1-nano') as ModelName,
-	top_p: 0.5 // 0.0-(1.0)-2.0
+	model: (dev ? 'gpt-4.1-nano' : 'gpt-4.1-mini') as ModelName,
+	temperature: 0.5, // 0.0-(1.0)-2.0
+	top_p: 1.0 // 0.0-(1.0)
 };
 
 const costsIn1MTokens = {
