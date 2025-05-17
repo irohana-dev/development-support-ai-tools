@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { commonParams } from '$lib/gpt';
 	import { Card, Heading } from 'flowbite-svelte';
 
 	const links = [
@@ -51,6 +52,12 @@
 				各AIには処理後にトークン数に基づく発生コストを算出しているため、必要に応じて参考ください。
 				ただし、OpenAIの最新の料金プランに準じるため、正確な請求額は料金プランまたはAPIのダッシュボードよりご確認ください。
 			</p>
+			<h3 class="text-lg font-bold text-primary-600">現在のAIモデル設定</h3>
+			<code class="md-2 rounded-lg bg-gray-700 p-4 text-sm text-gray-300">
+				Model: {commonParams.model}<br />
+				Temperature: {commonParams.temperature.toFixed(1)}<br />
+				Top P: {commonParams.top_p.toFixed(1)}<br />
+			</code>
 		</div>
 	</div>
 </div>
