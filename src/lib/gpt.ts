@@ -1,5 +1,7 @@
 import OpenAI from 'openai';
 
+import { building } from '$app/environment';
+
 import { PUBLIC_OPENAI_API_KEY } from '$env/static/public';
 
 export const client = new OpenAI({
@@ -7,27 +9,54 @@ export const client = new OpenAI({
 	dangerouslyAllowBrowser: true
 });
 
-export type ModelName = 'gpt-4o' | 'gpt-4o-mini';
+export type ModelName = 'gpt-4.1' | 'gpt-4.1-mini' | 'gpt-4.1-nano' | 'gpt-4o' | 'gpt-4o-mini';
+export const modelList = [
+	{ displayName: 'GPT-4.1 (最高性能)', model: 'gpt-4.1' },
+	{ displayName: 'GPT-4.1 mini (高性能かつ低コスト)', model: 'gpt-4.1-mini' },
+	{ displayName: 'GPT-4.1 nano (最安だが低性能)', model: 'gpt-4.1-nano' },
+	{ displayName: 'GPT-4o (レガシー)', model: 'gpt-4o' },
+	{ displayName: 'GPT-4o mini (レガシー)', model: 'gpt-4o-mini' }
+] as { displayName: string; model: ModelName }[];
 export const commonParams = {
-	// 'gpt-4o' or 'gpt-4o-mini'
-	model: 'gpt-4o-mini' as ModelName,
+	model: (building ? 'gpt-4.1-mini' : 'gpt-4.1-nano') as ModelName,
 	top_p: 0.5 // 0.0-(1.0)-2.0
 };
 
 const costsIn1MTokens = {
+	'gpt-4.1': {
+		inputText: 2.0,
+		inputCached: 0.5,
+		inputAudio: 0.0,
+		outputText: 8.0,
+		outputAudio: 0.0
+	},
+	'gpt-4.1-mini': {
+		inputText: 0.4,
+		inputCached: 0.1,
+		inputAudio: 0.0,
+		outputText: 1.6,
+		outputAudio: 0.0
+	},
+	'gpt-4.1-nano': {
+		inputText: 0.1,
+		inputCached: 0.025,
+		inputAudio: 0.0,
+		outputText: 0.4,
+		outputAudio: 0.0
+	},
 	'gpt-4o': {
 		inputText: 2.5,
 		inputCached: 1.25,
-		inputAudio: 100.0,
+		inputAudio: 0.0,
 		outputText: 10.0,
-		outputAudio: 200.0
+		outputAudio: 0.0
 	},
 	'gpt-4o-mini': {
 		inputText: 0.15,
 		inputCached: 0.075,
-		inputAudio: 100.0,
+		inputAudio: 0.0,
 		outputText: 0.6,
-		outputAudio: 200.0
+		outputAudio: 0.0
 	}
 };
 
